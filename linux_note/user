@@ -1,0 +1,8 @@
+chown -R user folder
+chmod -R 777
+
+//list user info
+cat /etc/passwd
+
+//belongs to which group.
+groups user

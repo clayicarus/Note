@@ -1,0 +1,62 @@
+## change source
+    pay attention to code name
+    lsb_release -a
+## ubuntu-drivers devices
+
+## locale
+    No such file
+    zh_cn
+
+## fcitx
+    kde-config-fcitx
+    dbus
+    fcitx-dbus-watc
+    ~/.xprofile X11
+        XMODIFIERS=@im=fcitx
+        GTK_IM_MODULE=fcitx
+        QT_IM_MODULE=fcitx
+
+## environment variable
+    env: see what environment variable
+    echo $LD_LIBRARY_PATH: to see what enable
+    1, temp
+        export PATH=$PATH:/...
+        ### dynamic
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:
+        ### static
+        export LIBRARY_PATH=$LIBRARY_PATH:
+        export CPATH=$CPATH:
+    2, user
+        ~/.bashrc
+        export PATH = ...
+        source .bashrc
+    3, all
+        /etc/profile
+        export
+        source profile
+    alias another_name
+    alias cmd='/.../*.sh'
+    
+    
+## app_link
+    /usr/share/applications
+        [Desktop Entry]
+        Encoding=UTF-8
+        # 程序名
+        Name=CLion-2022.2.1
+        # 描述
+        Comment=CLion
+        # 程序可执行文件地址
+        Exec=/home/clay/clion-2022.2.1/bin/clion.sh
+        # 快捷方式的图标
+        Icon=/home/clay/clion-2022.2.1/bin/clion.png
+        # 启动时是否打开命令行
+        Terminal=false
+        # 快捷方式指向的文件的类型
+        Type=Application
+        # 快捷方式的分类
+        Categories=Application;Development;
+
+
+## num_lock
+    kde input_device->keyboard->hardwaretab

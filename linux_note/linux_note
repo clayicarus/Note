@@ -1,0 +1,225 @@
+##startxfce4
+
+##sth
+	1.linux match upper/lower case
+	2.start service: systemctl start xxx.service
+	3.startup service: systemctl enabie xxx.service
+	4.pacman -S xxxx
+	5./etc/local.gen; locale-gen
+	6.~/.bashrc
+##sth ends
+
+##wifi connection
+list networt card:
+	lspci -k
+	ip link
+	ip link set wlan0 up
+	ip link show wlan0
+iwd:
+	start iwd			//enable service
+	iwctl				//then use iwctl to connect wifi
+	device list
+	station wlan0 scan
+	station wlan0 get-networks
+	station wlan0 connect "name"
+
+NetworkManager:
+	nmcli,nmtui
+
+
+##mount
+	lsblk -f		//list devices
+				//	sda
+				//	|--sda1
+	mkfs.ext4 /dev/sda1	//format disk
+	mount /dev/nvme0n1p4 /storage/D/
+
+	umount /dev/sda1
+##mount ends
+
+##mirrorlist
+    /etc/pacman.d/mirrorlist
+
+##pacman
+	pacman -S xxxx			//sync from warehouse
+	pacman -Q			//list installed packages
+	pacman -R xxxx			//remove
+	pacman -Scc			//clean sync cache
+	pacman -Syyy			//test internet
+	pacman -Rns $(pacman -Qtdq)	//delete isolated packages
+	pacman -Syu			//upgrade system
+	pacman -S --needed
+	pacman -Sy          //update mirror source
+	/etc/pacman.conf
+
+##soundcards
+	aplay -l			//show soundcards installed
+	lspci |grep Audio		//find soundcards
+	#pacman -S alsa-firmware		//install soundcards firmware
+	pacman -S sof-firmware 		//new laptop models
+	pacman -S alsa-ucm-conf
+	#alsa-utils, alsa plugins,
+	pulseaudio-alsa, 		//alsamixer in cmd
+	#pavucontrol-qt, pavucontrol	//pavucontrol in gui
+
+##dpkg	//depack *.deb
+	dpkg -i *.deb   //install
+    dpkg -l         //list
+    dpkg -r         //remove
+
+##tar   //*tar.gz
+    -xzvf   //*.tar.gz
+
+
+##sh	//execute sh scripts
+	sh xxx.sh
+
+##xorg installation
+    pacman -S xorg-server
+    pacman -S xorg-xinit
+    pacman -S xorg-xterm
+    pacman -S xf86-video-intel
+    pacman -S nvidia
+
+    xinit/startx
+
+##KDE installation
+    pacman -S plasma
+    pacman -S xorg-fonts
+    systemctl enable sddm.service
+
+in X mode:
+    startx
+    startplasma-x11
+
+after story:
+    ntfs: ntfs-3g
+    zip: ark
+    image: gwenview
+    aur : git, base-devel, base
+    yay, aurutils
+    outside: electron-ssr
+    pacman -S dolphin kwrite konsole tar
+    install chinese fonts
+    install input method fcitx5-im
+    https://aur.archlinux.org/netease-cloud-music-imfix.git
+
+    change system language
+    pacman -S fcitx5-chinese-addons
+    media: kaffeine
+    screencapture:
+    in kde:
+        setting input method
+
+##double video cards
+prime:
+    xrandr --setprovideroffloadsink 0x8f 0x48
+    DRI_PRIME=1 glxinfo | grep "OpenGL renderer"
+optimus-manager:
+    git clone https://aur.archlinux.org/optimus-manager.git
+    git clone https://aur.archlinux.org/optimus-manager-qt.git
+    optimus-manager
+test:
+    pacman -S virtualgl
+    glxspheres64
+
+##aur helper
+aurutils:
+    git clone https://aur.archlinux.org/aurutils.git
+
+##clean
+    pacman -Scc
+    pacman -Qtdg
+    du -sh ~/.cache
+
+##git clone
+    makepkg -si
+
+##cuda
+    nvcc -V
+
+##monitor
+    nvidia-smi
+    gpustat
+    watch --color -n2 gpustat -cpu
+    watch -n1 nvidia-smi
+
+##anaconda
+install:
+	sh anaconda.sh
+	export PATH=/opt/anaconda3/bin:$PATH
+
+use:
+	conda create -n name python=3.9	//create environment
+	conda info -e				//list environments
+	source activate name			//activate environment
+	source deactivate name			//return to default environment
+	conda activate name
+	conda deactivate
+	conda remove --name 'name' --all	//delete environment
+
+mmd:
+    source activate mmd
+    cd mmdetection
+
+##mmdetection
+    img_scale,epoch
+
+    python tools/train.py ./configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
+    python tools/test.py configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py work_dirs/faster_rcnn_r50_fpn_1x_coco/latest.pth --out result.pkl
+    python tools/voc_eval.py result.pkl configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py
+
+##nano
+    ctl+u           //paste
+    ctl+k           //cut
+    alt+6           //copy
+    ctl+o           //save as
+    ctl+s           //save
+    ctl+w           //search
+    ctl+x           //quit
+
+##systemctl
+    enable
+    start
+    stop
+    restart             //nginx should stop and start to restart
+    list-unit-files
+
+##bashrc
+    ls      //dir
+    rm -rf  //delete dir
+    cp      //copy
+    mv      //rename is ok
+    mkdir   //
+
+##nginx
+ng file:
+    /usr/share/nginx/html
+    /etc/nginx/nginx.conf
+php-fpm:
+    www.conf, php-fpm.conf
+cgi php mysql
+service: nginx.service, php-fpm.service(cgi)
+php-fpm -S localhost:9000
+nginx -s stop
+$document_root
+problem:
+    [clay@archlinux nginx]$ 2021/06/25 02:22:41 [error] 1277#1277: *1 connect() failed (111: Connection refused) while connecting to upstream, client: 127.0.0.1, server: localhost, request: "GET /test.php HTTP/1.1", upstream: "fastcgi://127.0.0.1:9000", host: "127.0.0.1"
+    solution:
+        to find listen_address listen = xxx.sock, then revise the fastcgi_pass to "unix:/xxx.sock"
+
+## environment variables
+execute when open the shell:
+    /etc/bash.bashrc    system
+    ~/.bashrc           user
+execute when login:
+    /etc/environment    system
+    /etc/profile        user
+add new path:
+    export PATH=$PATH:/xxx/xx/
+
+## visudo:
+EDITOR=nano visudo
+
+## acquire permission
+    chown -R user_name dir

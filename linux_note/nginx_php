@@ -1,0 +1,17 @@
+## settings in nginx.conf
+
+#location /404.html {
+#    root=/usr/share/nginx/html;
+#}
+
+location ~ \.php$ {
+    root           html;
+    fastcgi_pass   unix:/run/php-fpm/php-fpm.sock;                              #in www.conf listen=xxx.sock 
+    fastcgi_index  index.php;
+    fastcgi_param  SCRIPT_FILENAME  /usr/share/nginx/html$fastcgi_script_name;  #website root directory
+    include        fastcgi_params;
+    #try_files      $uri=404 _404;
+}
+
+## in case you miss it
+1, nginx is running as root, but processing programs as http.
