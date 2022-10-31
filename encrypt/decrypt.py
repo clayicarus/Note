@@ -1,3 +1,7 @@
+# pip uninstall crypto
+# pip uninstall pycryptodome
+# pip install pycryptodome
+
 import Crypto.Cipher.AES as AES
 import os
 
