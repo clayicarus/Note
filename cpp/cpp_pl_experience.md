@@ -51,5 +51,13 @@ weak_ptr<T> f()
 }
 ```
 
+### 不要free一个对象指针
 
+delete会调用一个对象的析构函数而free()不会，不要混用free()来管理对象。
+
+```cpp
+Foo *p = new Foo();
+// free(p);
+delete p;
+```
 
