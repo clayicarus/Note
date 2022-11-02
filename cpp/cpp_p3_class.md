@@ -69,6 +69,10 @@ operator()，像函数一样使用该类的对象。类可以储存状态，故�
 
 拷贝、移动、赋值、销毁。
 
+- 拷贝、赋值、销毁
+- 拷贝控制、资源管理
+- 
+
 ## 五种特殊成员函数
 
 拷贝构造成员。
@@ -79,6 +83,12 @@ operator()，像函数一样使用该类的对象。类可以储存状态，故�
 | 拷贝赋值运算符 | 移动赋值运算符 |          |
 
 - 赋值运算符不属于构造函数，带参数。
+
+
+
+# 拷贝、赋值、销毁
+
+拷贝构造函数、拷贝赋值运算符、析构函数。
 
 ## 拷贝构造函数
 
@@ -178,7 +188,7 @@ public:
 - 合成拷贝赋值运算符的等价行为
 
   ```cpp
-  Person& Person::operator=(const Person &rhs/* 右侧引用 */)
+  Person& Person::operator=(const Person &rhs/* rhs是指右侧引用 */)
   {
       age = rhs.age;
       name = rhs.name;
@@ -312,9 +322,93 @@ struct Foo {
 
   则该类的**合成的赋值运算符**被定义为删除的。（不能对const成员赋值）
 
-- 某个成员的析构函数是删除的或不可访问的，或是类中存在没有类内初始化器的const成员且该类型未显式定义默认构造函数，或是类中存在没有类内初始化器的引用
+- 某个成员的**析构函数**是删除的或不可访问的，或是类中存在没有类内初始化器的const成员且该类型未显式定义默认构造函数，或是类中存在没有类内初始化器的引用
 
   则该类的默认构造函数被定义为删除的。（必须对不可默认构造的成员显式初始化）
 
 ### 使用private的拷贝控制
 
+通过将拷贝构造函数、拷贝赋值运算符声明为private的来阻止拷贝。
+
+希望阻止拷贝的类应该使用=delete，不应该将相关函数声明为private的。
+
+```cpp
+class Foo {
+    Foo(const Foo&);
+    Foo& operator=(const Foo&);
+};
+```
+
+- 成员函数或友元函数仍可以拷贝对象
+
+- 用户代码不可拷贝（编译阶段）
+
+- 若函数仅声明而没有定义
+
+  成员函数和友元函数中的拷贝操作会导致链接错误。
+
+
+
+# 拷贝控制和资源管理
+
+确定该类型对象的拷贝语义，使得类的行为看起来像一个值或者像一个指针。
+
+## 类值类
+
+类值对象的行为像一个值，拥有自己自身的状态。拷贝一个类值对象时，副本与原对象完全独立，改变副本不会影响原对象。
+
+### 例类
+
+类中有一个指向数组的指针，欲使用该类封装一个由原始数组简单实现的线性表。每一个Foo对象都是独立的，Foo是一个类值类。
+
+```cpp
+class Foo {
+public:
+    Foo(size_t length) : arr_(new int[length]), length_(length) {}
+    Foo(const Foo &f);
+    Foo& operator=(const Foo &rhs);
+    ~Foo() { delete p_arr_; }
+private:
+    int *arr_;
+    size_t length_;
+};
+```
+
+- 由于类中存在动态分配的资源，故需要定义析构函数释放资源。
+- 由于需要构造函数，根据三/五法则，同时也需要定义拷贝构造函数、拷贝赋值运算符。
+
+### 拷贝赋值运算符
+
+- 需要销毁左侧运算对象的数据，并将右侧对象的数据拷贝给左侧运算对象
+- 需要处理自赋值的情况（ f = f; ）
+
+此版本通过先拷贝rhs来处理自赋值的情况。先分配空间，将rhs的数据拷贝到新空间，然后释放this的数据，再将新空间的指针赋值到this，并拷贝其他成员变量，最后返回\*this。
+
+核心思想是，引入中间变量p，分离\*this与rhs间看似可行的直接拷贝。
+
+```cpp
+Foo& Foo::operator=(const Foo &rhs)
+{
+    auto p = new int[rhs.length_];
+    copy(rhs.arr_, rhs.arr_ + rhs.length_, p);
+    delete arr_;
+    
+    arr_ = p;
+    length_ = rhs.length_;
+    return *this;
+}
+```
+
+先释放左侧对象数据再拷贝右侧对象的方式看似正确，然而它不能处理自赋值的情况。
+
+```cpp
+Foo& Foo::operator=(const Foo &rhs)
+{
+    // DON'T do it.
+    delete arr_;
+    arr_ = new int[rhs.length_];
+    copy(rhs.arr_, rhs.arr_ + rhs.length_, p);
+    length_ = rhs.length_;
+    return *this;
+}
+```
