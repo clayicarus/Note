@@ -409,7 +409,7 @@ while(beg!=last)
 
 - 底层const
 
-  该变量本身可以修改。
+  该变量本身可以修改，但是其指向变量是const的。
 
   ```cpp
   int i;
@@ -488,54 +488,103 @@ typedef wages base, *p;	//p是double*的一个别名。
 using S=Student;	//S是Student类型的别名。
 ```
 
+
+
 ### auto
 
+编译器自动判断某个量的类型，用于**值初始化**新的变量（与decltype不一样）。
+
 ```cpp
-auto i=0,*p=&i;		//正确：i是整型，p是整型指针。顺序由左到右。
-auto sz=0,pi=3.14;	//错误：sz是整型，pi是浮点型，类型不一致。
+auto i = 0,*p = &i;		//正确：i是整型，p是整型指针。顺序由左到右。
+auto sz = 0, pi = 3.14;	//错误：sz是整型，pi是浮点型，类型不一致。
 ```
 
-- auto与引用
+#### auto与const
 
-  ```cpp
-  int i=0,&r=i;
-  auto a=r;		//此时a为整型，r作为i的别名。
-  auto &ri=i;		//ri为i的引用。
-  auto &rc=42;	//错误：42为字面量。
-  const auto &crc=42;	//正确：常值引用可以绑定字面量。
-  ```
+auto一般会忽略*自身的*顶层const而保留底层const。
 
-  ```cpp
-  const int ci=0;
-  auto &cri=ci;		//此时cri为常值引用，ci是int常量。
-  ```
+首先auto获得变量的完整类型，但是由于上述特性，会将得到类型的顶层const去掉，然后得到最终的类型。
 
-  
+```cpp
+const int ci = 0, &cr = ci;
+auto i = ci;		//此处的auto本应该为const int，忽略顶层const后变为int。
+```
 
-- auto与const
+欲保留顶层const则需要显式保留之。
 
-  auto一般会忽略顶层const而保留底层const。
+```cpp
+const int ci = i;
+const auto n_ci = ci;	//n_ci的类型为const int。
+```
 
-  ```cpp
-  const int ci=i, &cr=ci;
-  auto b=ci;		//ci为顶层const，故b为普通整型。
-  auto c=cr;		//cr是ci的别名，c的类型与b相同。
-  auto d=&i;		//d是i的指针。
-  auto e=&ci;		//e是指向整型常量的指针（对常量对象取地址是底层const）。
-  ```
 
-  显式保留顶层const。
-  
-  ```cpp
-  const int ci=i, &cr=ci;
-  const auto f=ci;
-  ```
-  
-  
+
+#### auto与引用
+
+auto不会推断出引用类型，因为引用实际是变量的别名。
+
+```cpp
+int i = 0, &r = i;
+auto a = r;				//此时a为整型，r作为i的别名。
+auto &ri = i;			//ri为i的引用。
+auto &rc = 42;			//错误：42为右值，不可以用左值引用绑定。
+const auto &crc = 42;	//正确：常值引用可以绑定右值。
+```
+
+给auto类型绑定引用后，即用&修饰auto，其const变为底层从const。
+
+```cpp
+const int ci = 0;
+auto &rci = ci;		//此时rci为常值引用（const int&），ci是int常量。
+//原因是虽然auto不保留顶层const，但是给rci绑定引用后，自身不再是顶层const，故ci的const保留。
+```
+
+显式保留底层const。
+
+```cpp
+const int ci = 0;
+const auto &cri = ci;	//cri的类型为const int&。
+```
+
+
+
+#### auto与指针
+
+与引用不同，auto会推断出指针类型。
+
+```cpp
+int i;
+auto p = &i;	//p的类型为int*。
+```
+
+为了与引用形态保持一致，可以显式指定指针修饰符\*。
+
+```cpp
+int i;
+auto *p = &i;	//p的类型为int*。
+```
+
+和auto引用一样，用\*修饰auto后，其const变为底层const。
+
+```cpp
+const int ci = 114514;
+auto *pc = ci;
+```
+
+可以去除\*修饰符
+
+```cpp
+const int ci = 0;
+auto pc = ci;	//pc的类型为const int*。
+```
+
+
+
+
 
 ### decltype
 
-取类型。
+取某个表达式或变量的类型，用于**默认初始化**变量。
 
 ```cpp
 //编译器自动判断类型。
