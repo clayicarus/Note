@@ -412,3 +412,4 @@ Foo& Foo::operator=(const Foo &rhs)
     return *this;
 }
 ```
+
