@@ -686,6 +686,42 @@ double next(int val) {
 
 # 暴力
 
+## [1668. 最大重复子字符串](https://leetcode.cn/problems/maximum-repeating-substring/description/)
+
+可能是考察kmp？
+
+### 暴力必须注意的点
+
+- 先检查是否越界，再构造string
+
+  ```cpp
+  string temp;
+  while(j + word.size() <= sequence.size() 
+        && temp.assign(sequence.begin() + j, sequence.begin() + j + word.size()) == word) {
+  	// ...
+  }
+  // SHIT, DON'T do it
+  // string temp(sequence.begin() + i, sequence.begin() + i + word.size());
+  // int c = 0, j = i;
+  // while(temp == word && j + word.size() <= sequence.size()) {
+  //     j += word.size();
+  //     ++c;
+  //     temp = string(sequence.begin() + j, sequence.begin() + j + word.size());
+  // }
+  ```
+
+  
+
+- word.size()是size_t类型，无符号整型
+
+  ```cpp
+  // DON'T do it
+  // i <= sequence.size() - word.size();
+  i + word.size() <= sequence.size();	// good
+  ```
+
+  
+
 ## [731. 我的日程安排表 II - 力扣（LeetCode）](https://leetcode.cn/problems/my-calendar-ii/)
 
 ### 暴力解法
