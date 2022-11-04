@@ -349,7 +349,7 @@ class Foo {
 
 
 
-# 拷贝控制和资源管理
+# 资源管理的拷贝控制
 
 确定该类型对象的拷贝语义，使得类的行为看起来像一个值或者像一个指针。
 
@@ -412,4 +412,146 @@ Foo& Foo::operator=(const Foo &rhs)
     return *this;
 }
 ```
+
+## 类指针类
+
+### 引用计数
+
+
+
+# 交换操作
+
+除了拷贝操作成员，管理资源的类还通常定义swap函数。
+
+## 例类
+
+类中有一个指向数组的指针，欲使用该类封装一个由原始数组简单实现的线性表。每一个Foo对象都是独立的，Foo是一个类值类。
+
+```cpp
+class Foo {
+public:
+    Foo(size_t length) : arr_(new int[length]), length_(length) {}
+    Foo(const Foo &f);
+    Foo& operator=(const Foo &rhs);
+    ~Foo() { delete p_arr_; }
+private:
+    int *arr_;
+    size_t length_;
+};
+```
+
+## 定义swap函数
+
+- swap是Foo的友元函数
+- 声明swap为内联以优化代码
+
+```cpp
+class Foo {
+    friend void swap(Foo &lhs, Foo &rhs);
+};
+inline void swap(Foo &lhs, Foo &rhs)
+{
+    using std::swap;
+    swap(lhs.arr_, rhs.arr_);
+    swap(lhs.length_, rhs.length_);
+}
+```
+
+## 在赋值运算符中使用swap
+
+- 此版本处理了自赋值的情况
+
+  原版本的赋值运算符需要拷贝操作以处理自赋值的情况，此处使用传值参数的方式提供了拷贝。
+
+- 此版本是异常安全的
+
+  此版本仅在拷贝构造函数中可能抛出异常，发生在改变this前。
+
+```cpp
+Foo& Foo::operator=(Foo rhs)
+{
+    swap(*this, rhs);
+    return *this;
+}
+```
+
+# 对象移动
+
+移动而非拷贝对象会大幅度提升性能。
+
+## 右值引用和左值引用
+
+```cpp
+int &&rr = 114514;
+int &lr = rr;
+```
+
+
+
+### 右值引用
+
+- 只能绑定到一个将被销毁的对象
+
+  字面量、表达式的运算结果、临时创建的对象等。
+
+- 绑定对象后，被绑定对象的生命期被延长直到该右值引用被销毁，此时右值引用与左值引用无异
+
+  右值引用可以捕获即将消逝的对象。右值引用是左值，因为右值引用是一个持久的量。
+
+  ```cpp
+  int &&rr = 90;
+  int &lr = rr;	// 右值引用是左值。
+  int &&rr1 = rr;	// DON'T do it.
+  ```
+
+- 右值引用绑定的对象没有其他用户
+
+  因为右值引用只能绑定到临时对象。
+
+### 左值引用
+
+- 只能绑定到一个左值
+
+  左值是指拥有持久状态的量。
+
+### std::move()
+
+该函数可以显式地将左值转换为右值引用类型。
+
+```cpp
+int &&rr1 = 233;
+int &&rr2 = std::move(rr1);
+```
+
+## 移动构造函数和移动赋值运算符
+
+定义移动构造函数和移动赋值运算符使得我们自己的类型支持移动操作。
+
+#### 移动操作的行为要求
+
+- 移后源对象须置为析构安全的状态（要保证移后源对象可析构）。
+- 须保证移后源对象是仍然有效的（可以使用）。
+- 移动构造函数不应该依赖于移后源对象的数据（不能对移后源对象的值进行任何假设）。
+
+### 移动构造函数
+
+移动构造函数不分配任何新内存，通过引用的值构造新的对象。
+
+```cpp
+Foo::Foo(Foo &&src) noexcept
+    : arr_(src.arr_), length_(src.length_)
+{
+    src.arr_ = nullptr;
+}
+```
+
+- 此函数通过拷贝src.arr\_给this-\>arr\_实现对象移动
+
+- 此处使用noexcept承诺该函数不抛出异常
+
+- 此处必须将src.arr_赋值为nullptr，防止资源释放
+
+  当src离开作用域后会调用其析构函数，导致src.arr\_被释放，而delete一个nullptr是合法且安全的，什么事情也不会发生，结合函数应实现的功能，故将src.arr\_置为nullptr。
+
+### 移动操作、标准库容器和异常
 
