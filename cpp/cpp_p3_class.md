@@ -699,5 +699,135 @@ f1 = std::move(f2);	// 2
 
 ## 移动迭代器
 
+调用标准库的make\_move\_iterator将一个普通迭代器转换为一个移动迭代器。
+
+```cpp
+vector<int> v(10, 0);
+auto i = make_move_iterator(v.begin());
+int &&rri = *i;
+```
+
+对移动迭代器解引用会返回一个右值引用。
+
+### 应用到uninitialized_copy()
+
+结合移动迭代器，将对象移动到为构造的内存中。
+
+
+
 ## 右值引用和成员函数
+
+### 为成员函数同时提供拷贝和移动版本
+
+考虑以下情况。
+
+```cpp
+Container<T> c;
+c.push_back(T());
+T t;
+c.push_back(t);
+```
+
+push_back的一个可行版本。
+
+```cpp
+void push_back(T &&rr)
+{
+    *next++ = rr;
+}
+void push_back(const T &lr)
+{
+    *next++ = lr;
+}
+```
+
+### 右值和左值引用成员函数
+
+我们可能希望在类中阻止对右值进行赋值的行为。
+
+```cpp
+Foo f1, f2;
+f1 + f2 = Foo();
+```
+
+#### 引用限定符
+
+类似const限定符的位置。
+
+引入引用限定符可以强制左侧运算对象（\*this）。用&限定\*this为左值，用&&限定\*this为右值。
+
+```cpp
+class Foo {
+public:
+    Foo& Foo::operator=(const Foo &rhs) &；    
+};
+```
+
+引用限定符可以与const限定符同时使用。引用限定符必须跟随在const限定符后面。
+
+```cpp
+class Foo {
+    Foo aFunc() & const;	// 错误的
+    Foo bFunc() const &;	// 正确的
+};
+```
+
+#### 重载与引用限定符
+
+类似const限定符可以区分重载版本，引用限定符也可以。
+
+考虑一个线性容器类Foo，我们希望有一个成员函数sorted()来返回已经排序好的元素的副本。
+
+```cpp
+class Foo {
+public:
+    Foo sorted() &&;
+    Foo sorted() const &;
+private:
+    vector<int> data;
+};
+```
+
+假设没有限定\*this的限定符，一个可行的版本如下。
+
+```cpp
+Foo sorted() const
+{
+    Foo temp(*this);
+    sort(temp.data.begin(), temp.data.end());
+    return temp;
+};
+```
+
+现在存在引用限定符，我们可以处理两种情况。当\*this是右值，我们无需拷贝一个Foo，直接对this->data进行排序即可。
+
+```cpp
+Foo sorted() && 
+{
+    sort(data.begin(), data.end());
+    return *this;
+}
+```
+
+```cpp
+Foo sorted() const &
+{
+    return Foo(*this).sorted();
+}
+```
+
+
+
+- 与const限定符不同，如果需要重载两个或两个以上具有相同参数列表的成员函数，要么都加上引用限定符，要么都不加。
+
+  ```cpp
+  using Comp = bool(const int&, const int&);
+  Foo Foo::sorted(Comp*);
+  Foo Foo::sorted(Comp*) const;
+  
+  Foo Foo::sorted() &&;
+  Foo Foo::sorted() const;	// 错误，必须都加上引用限定符。
+  ```
+
+  
 
