@@ -1,8 +1,6 @@
-# STL
+# 输入输出
 
-## 输入输出
-
-### cout/标准输出流(ostream)
+## cout/标准输出流(ostream)
 
 ``` cpp
 #include<iostream>
@@ -41,7 +39,7 @@ int main(void)
 }
 ```
 
-### cin/标准输入流(istream)
+## cin/标准输入流(istream)
 
 ```cpp
 //机制与scanf()类似
@@ -60,17 +58,17 @@ int main(void)
 }
 ```
 
-### 文件重定向
+## 文件重定向
 
 将标准输入重定向为infile文件；将标准输出重定向为outfile。
 
 ```bash
-$ cmd <infile >outfile
+$ cmd < infile > outfile
 ```
 
-## IO库
+# IO库
 
-### 常用设施列举
+## 常用设施列举
 
 - istream
 
@@ -92,9 +90,9 @@ $ cmd <infile >outfile
   getline(cin,str);
   ```
 
-### IO类
+## IO类
 
-#### 常用IO流及其特性
+### 常用IO流及其特性
 
 - 标准IO流
 
@@ -137,7 +135,7 @@ $ cmd <infile >outfile
   o2=print(o2);				//不可拷贝。
   ```
 
-#### IO对象的条件状态
+### IO对象的条件状态
 
 - 状态及其方法
 
@@ -168,7 +166,7 @@ $ cmd <infile >outfile
   //正常输入则循环，遇到EOF(^D)或输入错误则跳出循环。
   ```
 
-#### 输出缓冲的管理
+### 输出缓冲的管理
 
 - 缓冲区
 
@@ -215,9 +213,9 @@ $ cmd <infile >outfile
     cin.tie(&cout);	//指针
     ```
 
-### 文件流（ftream）
+## 文件流（ftream）
 
-#### 文件流声明及其基本方法
+### 文件流声明及其基本方法
 
 ```cpp
 fstream fs;	//可读可写。
@@ -232,7 +230,7 @@ fs.close();
 fs.is_open();
 ```
 
-#### 文件流的读写方法
+### 文件流的读写方法
 
 ```cpp
 fs.open("file");
@@ -240,7 +238,7 @@ fs<<"abc"<<flush;
 fs.close();
 ```
 
-#### 文件流的打开模式（ios::mode）
+### 文件流的打开模式（ios::mode）
 
 | 模式     | 含义                               |
 | -------- | ---------------------------------- |
@@ -251,11 +249,11 @@ fs.close();
 | trunc    | 舍弃原文件内容（默认）。           |
 | binary   | "b"，二进制模式。                  |
 
-### string流（sstream）
+## string流（sstream）
 
 常用于类型转换。
 
-#### 声明及其基本方法
+### 声明及其基本方法
 
 ```cpp
 stringstream ss;
@@ -269,7 +267,7 @@ ss.str();
 ss.str(s);
 ```
 
-#### 应用
+### 应用
 
 - itoa
 
@@ -320,9 +318,9 @@ ss.str(s);
 
 
 
-## 泛型算法(algorithm)
+# 泛型算法 (algorithm)
 
-### max_element / min_element
+## max_element / min_element
 
 O(n)。
 
@@ -334,7 +332,7 @@ iv=max_element(v.cbegin(),b.cend());
 max=*max_element(v.begin(),v.end());
 ```
 
-### 定制操作
+## 定制操作
 
 给排序函数提供比较方法。
 
@@ -388,59 +386,222 @@ max=*max_element(v.begin(),v.end());
                 [](const string &a,const string &a){return a.size()<b.size();});
     ```
 
-## 顺序容器
 
 
+# 顺序容器
 
-## 容器(container)
+| 类型         | 外部表现                 | 访问方式     | 插入/删除效果                    |
+| ------------ | ------------------------ | ------------ | -------------------------------- |
+| vector       | 变长数组                 | 快速随机访问 | 尾部快。其他位置可能很慢。       |
+| deque        | 双端队列                 | 快速随机访问 | 头尾都很快。                     |
+| list         | 双向链表                 | 双向顺序访问 | 任何位置都快（前提是访问到了）。 |
+| forward_list | 单向链表                 | 单向顺序访问 | 任何位置都快（前提是访问到了）。 |
+| array        | 固定长度的数组           | 快速随机访问 | 不可插入或删除。                 |
+| string       | 类似vector，只能保存字符 | 快速随机访问 | 尾部快。其他位置可能很慢。       |
 
-### 关联容器
+- 顺序容器几乎可以保存任意类型的元素。
 
-#### 无序unordered_map<KEY,VAL> 
+## 容器通用成员
 
-哈希函数实现，元素类型为pair{KEY first; VAL second;}。
+容器库操作成员分为三个层次。
 
-初始化
+- 所有容器类型都提供的操作。
+- 仅分别针对顺序容器、关联容器、无序容器的操作。
+- 适用与一小部分容器的操作。
+
+### 通用操作成员（顺序、关联）
+
+| 类型别名        | 作用                                     |
+| --------------- | ---------------------------------------- |
+| iterator        | 对应类型容器的迭代器                     |
+| const_iterator  | const迭代器                              |
+| size_type       | 无符号整数类型，保存该容器最大大小的类型 |
+| difference_type | 带符号整数类型，保存两个迭代器之间的距离 |
+| value_type      | 元素的类型                               |
+| reference       | value_type &                             |
+| const_reference | const value_type &                       |
+
+| 构造函数                                      | 作用                                      |
+| --------------------------------------------- | ----------------------------------------- |
+| Container()                                   | 默认构造函数，构造空容器（array与之不同） |
+| Container(const Container &c)                 | 拷贝构造函数                              |
+| Container(const_iterator b, const_iterator e) | 拷贝b, e范围的元素进行构造                |
+| Container(initialize_list\<T\>)               | 列表初始化                                |
+
+| 赋值与swap         | 作用                  |
+| ------------------ | --------------------- |
+| c1 = c2            | 将c2赋值给c1          |
+| c = {a, b, c, ...} | 替换c中元素为列表元素 |
+| c1.swap(c2)        | 交换c1，c2中的元素    |
+| swap(c1, c2)       | c1.swap(c2)           |
+
+| 大小相关                               | 作用             |
+| -------------------------------------- | ---------------- |
+| size_type size()（forward_list不支持） | 返回保存元素数目 |
+| size_type max_size()                   | 可保存的最大数目 |
+| bool empty()                           | 是否为空         |
+
+| 添加/删除元素（不适用于array）（*args*表示不同容器的不同接口） | 作用                             |
+| ------------------------------------------------------------ | -------------------------------- |
+| c.insert(*args*)                                             | 插入元素                         |
+| c.emplace(*inits*)                                           | 通过*inits*参数构造c中的一个元素 |
+| c.erase(*args*)                                              | 删除元素                         |
+| c.clear()                                                    | 清空容器，返回void               |
+
+| 关系运算符   | 支持容器           |
+| ------------ | ------------------ |
+| ==, !=       | 所有容器           |
+| <, <=, >, >= | 不支持无序关联容器 |
+
+| 通用迭代器           | 作用 |
+| -------------------- | ---- |
+| c.begin(), c.end()   |      |
+| c.cbegin(), c.cend() |      |
+
+| 反向迭代器成员（不支持forward_list） | 作用           |
+| ------------------------------------ | -------------- |
+| reverse_iterator                     | 反向迭代器类型 |
+| const_reverse_iterator               | const的        |
+| c.rbegin(), c.rend()                 | 尾后迭代器     |
+| c.crbegin(), c.crend()               | const的        |
+
+### 迭代器使用
+
+迭代器范围。[b, e)。
 
 ```cpp
-#include<unordered_map>
-struct pair<KEY,VAL>{
-    KEY key;
-    VAL val;
-};
-unordered_map<string,int> hash={
-    {"watashi",1106},
-    {"kare",801},
-};
+const auto begin = c.cbegin();
+const auto end = c.cend();
+while(begin != end) {	// 所有迭代器都支持!=
+    *begin++ = val;		// 所有迭代器都支持*和++
+}
 ```
 
-#### 有序map<KEY,VAL>
+### begin和end成员
 
-红黑树实现，中序遍历之即可获得有序序列。
+- 不以c开头的成员都是带重载的成员函数，形式可能如下
+
+  ```cpp
+  const_iterator begin() const;
+  iterator begin();
+  ```
+
+- 以c开头的是新版本为了支持auto与begin，end结合使用而引入的。
+
+  ```cpp
+  auto i1 = c.begin();	// 当且仅当c是const时，i1是const_iterator
+  auto i2 = c.cbegin();	// i2是const_iterator
+  ```
+
+### 赋值和swap
+
+- 赋值，assign操作，只支持顺序容器
+
+  ```cpp
+  vector<int> v;
+  v.assign(il);
+  v.assign(n, t);
+  v.assign(b, e);	// 可以用这个重载将不同但相容的容器元素赋值到另外的容器里
+  ```
+
+  ```cpp
+  list<string> names;
+  vector<const char*> old;
+  names.assign(old.cbegin(), ole.cend());	// const char* 转换为string
+  ```
+
+- swap
+
+  除了array（真正交换），swap不会对任何元素进行拷贝、删除、插入操作。
+
+  swap操作之后，容器的迭代器、引用、指针都不会失效，都指向原来的元素（除了string）。
+
+  例如，iter在swap前指向vec1[3]，swap之后iter指向vec2[3]。
+
+### 关系运算符
+
+与string的比较方式相似。
+
+
+
+## 顺序容器操作
+
+### 与大小相关的构造函数
 
 ```cpp
-#include<map>
-map<string,string> dict;
+vector<int> v(n);	// 大小为n的vector
+vector<int> v(n, v);// 大小为n，n个元素的初始值都为v的vector
+
+string s(n);
+string s(n, 'a');
 ```
 
-### map
+### 向顺序容器添加元素
 
-| map容器             | 特性 |
-| ------------------- | ---- |
-| map                 |      |
-| unordered_map       |      |
-| unordered_multi_map |      |
-| multi_map           |      |
+array没有添加元素的方法。
 
-### set
+| 方法                                       | 作用                                                       |
+| ------------------------------------------ | ---------------------------------------------------------- |
+| c.push_back(t), c.emplace_back(*args*)     | 在尾部追加元素。                                           |
+| c.push_front(t), c.emplace_front(*args*)   | 在首部添加元素。                                           |
+| c.insert(iter, t), c.emplace(iter, *args*) | 在iter位置前插入元素。返回新插入元素的迭代器。             |
+| c.insert(iter, begin, end)                 | 插入。若b到e为空，则返回iter；否则返回新添加元素的迭代器。 |
+| c.insert(iter, il)                         | 同上。                                                     |
 
-| set容器 | 特性 |
-| ------- | ---- |
-|         |      |
+#### insert的使用
+
+- 在特定位置添加元素
+
+  ```cpp
+  auto iter = v.begin();
+  v.insert(iter, t);
+  ```
+
+- 插入范围内元素
+
+  ```cpp
+  vector<int> v;
+  list<int> l{1, 2, 3};
+  v.insert(v.end(), l.begin(), l.end());
+  ```
+
+- 源迭代器不能与目的迭代器指向相同位置
+
+  ```cpp
+  vector<int> v{1, 2, 3};
+  auto dest = v.begin();
+  auto src_b = v.begin();
+  auto src_e = v.end();
+  v.insert(dest, src_b, src_e);	// 运行时错误。
+  ```
+
+- 使用insert的返回值
+
+  insert返回新插入元素的迭代器，如果为空则返回原迭代器。
+
+  即返回值在容器的位置与插入在容器的相对位置相同。
+
+  可以利用insert的返回值持续在一个特定位置反复插入元素。
+
+  ```cpp
+  list<string> l;
+  auto iter = l.begin();
+  while(cin >> word)
+      iter = l.insert(l, word);
+  // iter的值可能会改变，但是使用insert返回值更新后，仍然指向l.begin()。
+  ```
 
 
 
-### string
+#### 使用emplace操作
+
+emplace(*args*)是直接通过*args*调用构造函数，直接在容器上构造对象，而非拷贝对象到容器上（push操作可能是拷贝）。
+
+
+
+
+
+## string
 
 严格来说不属于容器。字符串。标准库类型string (std::string)。
 
@@ -527,11 +688,11 @@ map<string,string> dict;
 
 
 
-### vector<**T**>
+## vector<**T**>
 
 线性表。
 
-#### 声明与初始化
+### 声明与初始化
 
 ```cpp
 #include<vector>
@@ -555,7 +716,7 @@ int main(void)
 
 ```
 
-#### 列表初始化
+### 列表初始化
 
 当无法进行列表初始化时，则将{}内的值作为构造函数的参数进行构造。
 
@@ -564,7 +725,7 @@ vector<string> sth={"ixixi","wa","x"};	//等价于vector<string> sth{"ixixi","wa
 vector<string> vs{10,"wa"};				//等价于vector<string> vs(10,"wa");	
 ```
 
-#### 数组初始化vector
+### 数组初始化vector
 
 STL的begin()方法，用来获得C风格数据类型的迭代器。
 
@@ -573,7 +734,7 @@ int arr[]={1,2,3,4};
 vector<int> v(begin(arr),end(arr));
 ```
 
-#### vector方法
+### vector方法
 
 ```cpp
 typename T
@@ -610,11 +771,53 @@ v1==v2;			//sequence and value both the same.
       v.push_back(i);
   ```
 
+# 关联容器
 
+## 无序unordered_map<KEY,VAL> 
 
-## 动态内存
+哈希函数实现，元素类型为pair{KEY first; VAL second;}。
 
-### 智能指针
+初始化
+
+```cpp
+#include<unordered_map>
+struct pair<KEY,VAL>{
+    KEY key;
+    VAL val;
+};
+unordered_map<string,int> hash={
+    {"watashi",1106},
+    {"kare",801},
+};
+```
+
+## 有序map<KEY,VAL>
+
+红黑树实现，中序遍历之即可获得有序序列。
+
+```cpp
+#include<map>
+map<string,string> dict;
+```
+
+## map
+
+| map容器             | 特性 |
+| ------------------- | ---- |
+| map                 |      |
+| unordered_map       |      |
+| unordered_multi_map |      |
+| multi_map           |      |
+
+## set
+
+| set容器 | 特性 |
+| ------- | ---- |
+|         |      |
+
+# 动态内存
+
+## 智能指针
 
 用于动态分配的，自动释放指向对象的指针。
 
@@ -733,7 +936,7 @@ v1==v2;			//sequence and value both the same.
 
     
 
-### 直接管理内存
+## 直接管理内存
 
 现代c++程序不应出现delete。
 
@@ -827,20 +1030,20 @@ v1==v2;			//sequence and value both the same.
 
 
 
-### 智能指针和异常
+## 智能指针和异常
 
 - 异常发生时智能指针会自动释放资源，而普通指针不会。
 
 
 
-### 智能指针陷阱
+## 智能指针陷阱
 
 - 不使用相同内置指针值初始化多个智能指针。
 - 不delete get()返回的指针。
 - 不使用get()初始化新的智能指针。
 - 删除器。
 
-### allocator类
+## allocator类
 
 分配一大块内存，按需构造对象，分配与构造对象分离。
 
