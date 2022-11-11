@@ -1145,9 +1145,35 @@ double a = Account::rate();
   };
   ```
 
-  
 
-  
+### 聚合类（aggregate class）
+
+满足以下条件的类为聚合类。与 C 语言中的结构体类似。
+
+- 成员均为public
+
+- 没有定义任何构造函数
+
+- 无类内初始值
+
+- 无基类，无虚函数
+
+```cpp
+struct Data {
+    int val;
+    string s;
+};
+```
+
+聚合类的初始化：
+
+```cpp
+Data d;
+d.val = 1; d.s = "abc";
+d = {0, "abc"};
+```
+
+
 
 ### 别的特性
 
@@ -1194,26 +1220,7 @@ double a = Account::rate();
   }
   ```
 
-- 聚合类
-
-  成员均为public；
-
-  没有定义任何构造函数；
-
-  无类内初始值；
-
-  无基类、虚函数。
-
-  聚合类的初始化
-
-  ```cpp
-  struct Data{
-      int ival;
-      string s;
-  };
-  Data val1={0,"Anna"};
-  ```
-
+  
 
 
 # 表达式
