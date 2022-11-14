@@ -923,6 +923,314 @@ map<string,string> dict;
 | ------- | ---- |
 |         |      |
 
+# 泛型算法
+
+- 算法不依赖于容器，依赖于元素类型的操作
+
+- 算法永远不会执行容器的操作，不会改变底层容器的大小
+
+  可能会改变容器中元素的值，可能移动元素，但永远不会直接添加或删除元素。
+
+## 算法类别
+
+### 只读算法
+
+`find`、`count`、`accumulate` 等不改变元素，不改变元素顺序的算法。
+
+- accumulate 方法
+
+  `decltype(v) accumulate(b, e, v);`
+
+  在 numeric 中，返回以 v 为初值的加和拷贝，返回值 sum 的类型只与 v 有关。
+
+  ```cpp
+  list<string> l;
+  auto sum = accumulate(l.begin(), l.end(), string(""));
+  ```
+
+- equal 方法
+
+  `bool equal(a1, a2, b1);`
+
+  操作两个序列的算法。返回 a、b 两个序列是否保存相同的值，b 序列的迭代长度取决于序列 a。
+
+  ```cpp
+  vector<string> a;
+  vector<const char *> b;
+  equal(a.begin(), a.end(), b.begin());	// 只要元素间能够使用 == 比较即可。
+  ```
+
+### 写容器元素的算法
+
+会将新值赋给容器中的元素的算法。
+
+- fill 方法
+
+  `fill(b, e, v);`
+
+  将 b, e 范围内的值全部赋为 v。
+
+  ```cpp
+  vector<int> v(10);
+  fill(v.begin(), v.end(), 1);
+  ```
+
+- copy 方法
+
+  `decltype(dest) copy(src.begin(), src.end(), dest.begin());`
+
+  将 src 范围内的元素拷贝到 dest 中。返回 dest 容器的 `src.end() - src.begin()` 位置。
+
+- replace 方法
+
+  `replace(a.begin(), a.end(), old, new);`
+
+  将范围内 old 值全部替换为 new。
+
+- replace_copy 方法
+
+  `replace(a.begin(), a.end(), dest.begin(), v);` 
+
+  保持原序列不变，将替换后的拷贝保存到 dest 中。
+
+### 重排容器元素的算法
+
+- sort 方法
+
+- unique 方法
+
+  ` a::itereator unique(a.begin(), a.end());`
+
+  将 a 中不一样的元素重排到前面，要求 a 为有序序列，返回重排后最后一个不重复元素的下一个元素的迭代器，该迭代器之后的元素的值是未定义的。
+
+  ```cpp
+  // 删除重复元素
+  vector<int> a = {4, 3, 2, 1, 3, 3, 2, 1};
+  sort(begin(a), end(a));
+  auto i = unique(begin(a), end(a));
+  while(i != a.end()) {
+  	i = a.erase(i);
+  }
+  ```
+
+  
+
+## lambda 表达式
+
+- 一种可调用对象。
+
+- 一个 lambda 表达式表示一个可调用的代码单元。
+
+- 可以理解为一个未命名的内联函数。
+- 可以定义在函数内部。
+
+### lambda 表达式的一般形式
+
+`[capture list] (parameter list) -> return type { function body }`
+
+- lambda 表达式可以忽略参数列表和返回类型，但必须包含捕获列表和函数体。
+
+  ```cpp
+  auto f = []{ return 1; }
+  cout << f() << endl;
+  ```
+
+- 返回类型必须使用尾置返回。
+
+  如果函数体包含任何单一 return 语句之外的内容，且未指定返回类型，则返回 void。
+
+  如果函数体只有单一的 reutrn 语句，且未指定返回类型，则会自动推断 return 的类型。
+
+### 向 lambda 传递参数
+
+- lambda 不能有默认参数，因此实参数目永远与形参数目相等。
+
+```cpp
+auto isShorter(const string &a, const string &b) -> bool {
+    return a < b;
+}
+// 与 isShorter 功能相同的 lambda 表达式
+[](const string &a, const string &b){ return a < b; }
+```
+
+### 使用捕获列表
+
+使用捕获列表可以将 **lambda 表达式所在函数中**的局部变量传递给 lambda 表达式，否则这些局部变量不能在 lambda 表达式中使用。
+
+- 使用 find_if 查找第一个符合条件的对象
+
+  find_if 会使用迭代到的元素的引用回调传入的 lambda 表达式。
+
+  ```cpp
+  // 返回第一个 size() >= sz 的元素的迭代器
+  auto wc = find_if(words.begin(), words.end(), [sz](const auto &a){ return a.size() >= sz; });
+  ```
+
+- for_each 算法
+
+  与 for 类似。
+
+  ```cpp
+  for_each(words.begin(), words.end, [](const auto &a){ cout << a << " "; });
+  ```
+
+  注意 lambda 函数体中的 cout 对象，由于该对象不是 **lambda 表达式所在函数中**的局部变量，所以可以在 lambda 函数体内直接只用该变量。
+
+### lambda 的捕获和返回
+
+lambda 生成的类都包含一个对应 lambda 所捕获变量的数据成员。与任何普通类类似，lambda 的数据成员也在 lambda 对象创建时被初始化。
+
+- 值捕获
+
+  能够采用值捕获的前提是变量可以拷贝。与 lambda 参数列表不同，被捕获的变量的值是在 lambda 创建时拷贝，而非调用时拷贝。
+
+  ```cpp
+  {
+      auto i = 1998;
+      auto f = [i] { return i; };	// 直接在捕获列表中写入变量名即可值捕获局部变量。
+      i = 0;
+      auto j = f();	// 注意此时 j == 1998，因为 i 在 f 创建时被值捕获。
+  }
+  ```
+
+- 引用捕获
+
+  ```cpp
+  {
+      auto i = 1998;
+      auto f = [&i] { return i; };
+      i = 1987;
+      auto j = f();	// 此时 j 为1987。
+  }
+  ```
+
+  引用捕获与返回引用有相同的问题和限制（不要返回局部对象的引用）。使用引用捕获时，要确保引用的对象在 lambda 执行的时候是存在的。
+
+- 使用 os 输出 words，分隔符为 c
+
+    ```CPP
+    void print(vector<string> &words, ostream &os = cout, char c = ' ')
+    {
+        for_each(words.begin(), words.end(), [&os, c] (const auto &a) { 	// 函数参数列表的对象也属于该函数的局部对象？
+            os << a << c;	// ostream 不可拷贝，c 可以拷贝。
+        });
+    }
+    ```
+
+- 隐式捕获和显式捕获的混合使用
+
+  隐式捕获符必须写在第一个的位置。
+
+  `[=, identifier_list]` 显式捕获列表 list 中的名字必须使用 &，统一采用引用捕获的方式。
+
+  `[&, identifier_list]` 显式捕获列表 list 中的名字不能使用 &，统一采用值捕获的方式。
+
+- 可变 lambda 
+
+  默认情况下，不会改变值捕获的变量的值（值捕获到 lambda 的量是 const 的，即便它只是拷贝）。
+
+  ```cpp
+  auto i = 1;
+  auto f = [=] { return ++i; };	// 会报错
+  ```
+
+  如果希望修改值捕获到的量，则必须在参数列表后加上关键字 `mutable` ，对于可变 lambda 不能省略参数列表。
+
+  ```cpp
+  auto i = 1;
+  auto f = [=] () mutable { return ++i; };
+  ```
+
+  - 对于引用捕获的变量没有此限制
+
+    ```cpp
+    auto i = 1;
+    auto f = [&] { return ++i; };
+    f();	// i == 2;
+    ```
+
+
+
+## 参数绑定
+
+在 functional 头文件中。
+
+```cpp
+auto newCallable = bind(callable, arglist);
+```
+
+返回一个可调用对象 newCallable，调用 newCallable 时会按照 arglist 中参数的顺序传递给 callable 对象，并调用 callable。
+
+```cpp
+// 调用 newCallable() 的等价调用
+callable(arglist);
+```
+
+### 占位符
+
+如果希望在调用 bind 返回的对象 newCallable 时传递参数，则需要在 bind 中用到占位符。
+
+`using std::placeholders::_n` ，n 对应 newCallable(*arglist*) 的参数列表中的第 n 个参数。
+
+当 newCallable 回调 callable 时，首先会将 newCallable 中的 arglist 按照占位符的映射规则映射到 bind 中的 arglist，然后再回调 callable。
+
+占位符的个数等于 newCallable 的形参列表的参数个数。
+
+```cpp
+void callable(string end, string s1, string s2, string s3) 
+{
+    cout << s1 << " " << s2 << " " << s3 << " " << end << endl;
+}
+auto newCallable = bind(callable, "!", _3, _1, _2);
+newCallable("Maji"/* 映射到_1 */, "Tenshi"/* 映射到_2 */, "Aqua"/* 映射到_3 */);
+// 此时等价于 bind(callable, "!", "Auqa", "Maji", "Tenshi");
+// 等价调用 callable("!", "Aqua", "Maji", "Tenshi")
+// 输出：Aqua Maji Tenshi !
+```
+
+- 使用占位符定制 sort 的比较函数
+
+  ```cpp
+  bool isSmaller(const string &a, const string &b);
+  sort(v.begin(), v.end(), bind(isSmaller, _1, _2));	// 此时按照升序排序
+  sort(v.begin(), v.end(), bind(isSmaller, _2, _1));	// 此时按照降序排序
+  ```
+
+### 引用参数的绑定
+
+默认情况下，bind 中非占位符的参数会被拷贝到 bind 返回的可调用对象中。
+
+使用标准库中的 `ref` 函数，返回包含给定的引用的对象，此对象可以拷贝。`cref` 则返回保存 const 的引用的对象。
+
+## 定制操作
+
+### 谓词
+
+可调用的表达式，返回结果是 bool 类型，用作条件。标准库算法会使用的谓词只有一元谓词、二元谓词，元表示该谓词会接受多少个参数。调用算法时，算法会使用迭代到的元素的引用回调该谓词，然后根据谓词的返回结果做相应操作。
+
+### 通过传递函数指针定制排序算法
+
+```cpp
+bool isShorter(const string &s1, const string &s2)
+{
+    // 排序算法的默认操作
+    return s1 < s2;
+}
+sort(word.begin(), word.end(), isShorter);
+```
+
+## 泛型算法与迭代器
+
+### back_inserter
+
+
+
+## 泛型算法结构
+
+## 特定容器算法
+
+
+
 # 动态内存
 
 ## 智能指针
