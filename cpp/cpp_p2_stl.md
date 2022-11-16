@@ -881,11 +881,22 @@ stack<int, vector<int>> s;
 
 # 关联容器
 
-## 无序unordered_map<KEY,VAL> 
+| map容器             | 特性 |
+| ------------------- | ---- |
+| map                 |      |
+| unordered_map       |      |
+| unordered_multi_map |      |
+| multi_map           |      |
+
+| set容器 | 特性 |
+| ------- | ---- |
+|         |      |
+
+## map<KEY,VAL> 
+
+### 无序 map
 
 哈希函数实现，元素类型为pair{KEY first; VAL second;}。
-
-初始化
 
 ```cpp
 #include<unordered_map>
@@ -899,29 +910,46 @@ unordered_map<string,int> hash={
 };
 ```
 
-## 有序map<KEY,VAL>
+### 有序 map
 
 红黑树实现，中序遍历之即可获得有序序列。
 
 ```cpp
 #include<map>
-map<string,string> dict;
+map<string, string> dict;
 ```
 
-## map
+### multi_map
 
-| map容器             | 特性 |
-| ------------------- | ---- |
-| map                 |      |
-| unordered_map       |      |
-| unordered_multi_map |      |
-| multi_map           |      |
+## 关联容器的操作
 
-## set
+### 额外的类型别名
 
-| set容器 | 特性 |
-| ------- | ---- |
-|         |      |
+| 关联容器额外的类型别名 | 作用                                          |
+| ---------------------- | --------------------------------------------- |
+| key_type               | 此容器类型的 KEY 的类型                       |
+| mapped_type            | 关联的 VAL 的类型，只适用于map                |
+| value_type             | 对于 set 与 key_type 相同，对于 map 则为 pair |
+
+### 关联容器的迭代器
+
+双向迭代器。
+
+### 插入元素
+
+插入单一元素的 insert 和 emplace
+
+- 对于不含重复关键字的容器，返回 pair { iter, bool }
+
+  iter 指向给定关键字元素，bool 表示插入是否成功。
+
+- 对于包含重复关键字的容器，返回 iter，总指向新插入元素。
+
+### 删除元素
+
+erase
+
+返回实际删除元素的数量。
 
 # 泛型算法
 
@@ -1221,15 +1249,177 @@ sort(word.begin(), word.end(), isShorter);
 
 ## 泛型算法与迭代器
 
-### back_inserter
+| 迭代器类型                     | 作用                   |
+| ------------------------------ | ---------------------- |
+| 插入迭代器（insert iterator）  | 向容器插入元素         |
+| 流迭代器（stream iterator）    | 遍历关联的 IO 流       |
+| 反向迭代器（reverse iterator） | 从最后一个元素向前迭代 |
+| 移动迭代器（move iterator）    | 不拷贝，直接移动       |
+
+### 插入迭代器（inserter_iterator）
+
+| 类型              | 作用                             |
+| ----------------- | -------------------------------- |
+| back_inserter(c)  | 创建一个使用 push_back 的迭代器  |
+| front_inserter(c) | 创建一个使用 push_front 的迭代器 |
+| inserter(c, iter) | 创建一个使用 inserter 的迭代器   |
+
+| 操作            | 作用                                                    |
+| --------------- | ------------------------------------------------------- |
+| it = t          | 在 it 位置插入 t                                        |
+| *it, ++it, it++ | 存在这些操作，但不会对 it 做任何事情，每个操作都返回 it |
+
+#### inserter
+
+- inserter 迭代器与 insert 插入的对比
+
+  - insert 返回的迭代器指向容器的偏移位置不变
+
+    若 it == c.begin() + i，则 insert(it, v) 的返回值 it 仍等于 c.begin() + i 。
+
+  - 插入迭代器插入的等价操作
+
+    ```cpp
+    auto it = inserter(c, iter);
+    it = val;
+    ```
+
+    等价于
+
+    ```cpp
+    iter = c.insert(iter, val);
+    ++iter;
+    ```
+
+    插入效果与 insert(iter, l.begin(), l.end()) 类似，不会颠倒插入的顺序。
+
+
+
+#### front_inserter
+
+与 inserter 生成的迭代器行为完全不一样，插入位置总是容器的首部。
+
+#### back_inserter
+
+与 front_inserter 类似，总是插入到容器的尾部。
+
+### iostream 迭代器
+
+暂时不写。
+
+### 反向迭代器
+
+使用反向迭代器遍历时表现为遍历逆序后的容器。
+
+```cpp
+v.rbegin(); 	v.crbegin();
+v.rend();		v.crend();
+```
+
+```cpp
+vector<int> v = { 1, 2, 3, 4 };
+for_each(v.rbegin(), v.rend(),
+        [](const auto &i){
+            cout << i << " ";
+        });
+// 输出：4, 3, 2, 1
+```
+
+- 应用反向迭代器降序排序
+
+  ```cpp
+  vector<int> v = { 1, 2, 3, 4 };
+  sort(v.rbegin(), v.rend());
+  // 排序的结果：{ 4, 3, 2, 1 }
+  ```
 
 
 
 ## 泛型算法结构
 
+### 泛型算法要求的迭代器类别
+
+5 类迭代器。对每个迭代器参数来说，其能力必须与规定的最小类别相当，或D:\OneDrive\Programs\CPP\test\lambda.cpp D:\OneDrive\Programs\CPP\test\inserter.cpp C:\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include\c++\bits\std_mutex.h C:\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include\c++\bits\stl_construct.h强于其最小类别。向算法传递一个能力更差的迭代器会产生错误。
+
+| 类别           | 读   | 写   | 多遍扫描 | 递增 | 递减 | 随机访问 |
+| -------------- | ---- | ---- | -------- | ---- | ---- | -------- |
+| 输入迭代器     | √    | ×    | ×        | √    | ×    | ×        |
+| 输出迭代器     | ×    | √    | ×        | √    | ×    | ×        |
+| 前向迭代器     | √    | √    | √        | √    | ×    | ×        |
+| 双向迭代器     | √    | √    | √        | √    | √    | ×        |
+| 随机访问迭代器 | √    | √    | √        | √    | √    | √        |
+
+- 输入迭代器
+
+  - 必须支持 `==`，`!=` 。
+  - 必须支持前置递增和后置递增。
+  - 必须支持解引用运算符，解引用只能出现在赋值运算符的右侧（只读）。
+  - 必须支持箭头运算符 `->` 。
+
+- 输出迭代器
+
+  与输入迭代器类似，解引用只能出现在赋值运算符的左侧（只写）。
+
+- 前向迭代器
+
+  具有输入、输出迭代器的所有功能，并且可以多遍扫描。
+
+- 双向迭代器
+
+  前向迭代器的基础上支持前置递减、前置递增运算符。
+
+- 随机访问迭代器
+
+  提供常量时间内访问序列中任何元素的能力。
+
+  双向迭代器的基础上
+
+  - 支持比较相对位置的关系运算符 `<`，`>=` 等。
+  - 支持和整数值加减运算 `+`，`-=` 等。
+  - 支持两个迭代器上的减法 `it1 - it2` ，得到两个迭代器的距离。
+  - 支持下标运算符 `iter[i]` 。
+
+### 算法形参模式
+
+大多数算法具有以下四种形式之一
+
+```cpp
+alg(begin, end, other_args);
+alg(begin, end, destination, other_args);
+alg(begin, end, begin2, other_args);
+alg(begin, end, begin2, end2, other_args);
+```
+
+- 接受单个目标迭代器的算法
+
+  destination 参数表示算法可以写入的目的位置的迭代器。算法假定，按其需要写入数据，不管写入多少个元素都是安全的（如，插入迭代器）。
+
+- 接受第二个输入序列的算法
+
+  - 接受单独的 begin2 参数的算法假定从 begin2 开始的范围与 begin 和 end 表示的范围至少一样大。
+  - 接受 begin2 和 end2 参数的算法则不含上述假定。
+
+### 算法命名规范
+
+- 拷贝元素的版本和不拷贝元素的版本
+
+  ```cpp
+  reverse(begin, end);
+  reverse_copy(begin, end, dest);
+  
+  remove_if(begin, end, val);
+  remove_copy_if(begin, end, dest, pred);
+  
+  replace(begin, end, old_val, new_val);
+  ```
+
+  
+
 ## 特定容器算法
 
+list 和 foward_list 定义了几个成员函数形式的算法。特别地，它们定义了独有的 sort、merge、remove、reverse、unique。通用的 sort 不能用于这些容器。
 
+- 链表特有的操作会改变容器。
 
 # 动态内存
 
