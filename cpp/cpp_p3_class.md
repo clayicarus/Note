@@ -829,5 +829,264 @@ Foo sorted() const &
   Foo Foo::sorted() const;	// 错误，必须都加上引用限定符。
   ```
 
-  
+
+
+
+# 重载运算与类型转换
+
+## 重载运算符的基本概念
+
+- 非成员的重载运算符的参数数量与该运算符作用的运算对象的数量一样多。
+
+  成员的重载运算符的参数数量会少一个，左侧运算对象固定为 \*this，与赋值运算符完全一致。
+
+- 除了函数调用运算符 `operator()` 之外，其他重载运算符不能含有默认实参。
+
+  无法改变用于内置类型的运算符的含义。
+
+- 对于一个运算符，它要么是类的成员，要么至少含有一个类类型的参数
+
+  ```cpp
+  int operator+(int, int);	// 错误的，不能重载内置的运算符
+  ```
+
+- 重载运算符的优先级和结合律与对应的内置运算符保持一致。
+
+### 调用重载运算符
+
+- 非成员运算符的等价调用
+
+  ```cpp
+  data1 + data2;
+  operator+(data1, data2);
+  ```
+
+- 成员运算符的等价调用
+
+  ```cpp
+  data1 += data2;
+  data1.operator+=(data2);
+  ```
+
+### 赋值和复合赋值运算符
+
+- 赋值后，左侧对象的值与右侧对象的值相等，并且应返回左侧运算对象的一个引用。
+- 如果含有算术运算符或位运算符，最好也应该提供对应的复合赋值运算符（先 + 后 =）。
+
+### 作为成员或是非成员
+
+- `=` 、`[]` 、`()`、`->` 必须是成员。
+- 复合赋值运算符一般应该是成员，但不是必须的，与赋值不同。
+- 改变对象状态的运算符或者与给定类型密切相关的运算符，如递增、递减、解引用，通常应该是成员。
+- 具有对称性的运算符**可能转换任意一端**的运算对象，如算术、关系、位运算符等，通常应该是非成员。
+
+当运算符是成员函数时，左侧运算对象必须时所属类的一个对象。
+
+```cpp
+string s;
+string t = s + "wa";	// 正确的，等价于s.operator+("wa")
+string u = "wa" + s;	// 如果+是string的成员，则是错误的，等价于"wa".opereator+(s)。
+```
+
+若将上例的 `operator+` 定义为非成员函数，则等价于 `operator+("wa", s)` 每个实参都能被转为成形参类型。唯一要求的是至少有一个运算对象是类类型（不能改变内置运算符的含义），并且两个运算对象都能准确无误地转换成 string。
+
+## 输入和输出运算符
+
+- 输入输出运算符必须是非成员函数
+
+  否则左侧运算对象必须是该类的一个对象。
+
+  ```cpp
+  cout << stuff;
+  stuff << cout;	// 导致必须如此调用
+  ```
+
+### 输出运算符
+
+```cpp
+class Person {
+public:
+    string& name();
+    int& age();
+private:
+    string name_;
+    int age_;
+};
+ostream& operator<<(ostream &os, const Person &item)
+{
+    os << "{ name: " << item.name() << ", age: " << item.age() << " }";
+    return os;
+}
+```
+
+- 第一个形参是 ostream 对象的引用，输出时会改变 osream 的状态，并且该对象无法拷贝。
+- 第二个形参时希望打印的类类型，打印不会改变对象的内容。
+
+## 算术和关系运算符
+
+### 算术运算符
+
+如果需要定义算术运算符，则一般也会定义对应的复合赋值运算符。算术运算符一般为非成员。
+
+```cpp
+Stuff operator+(const Stuff &lhs, const Stuff &rhs)
+{
+    return Stuff(lhs) += rhs;
+}
+```
+
+### 相等运算符
+
+```cpp
+bool operator==(const Person &lhs, const Person &rhs)
+{
+    return lhs.name() == rhs.name() &&
+        lhs.age() == rhs.age();
+}
+bool operator!=(const Person &lhs, const Person &rhs)
+{
+    return !(lhs == rhs);
+}
+```
+
+- 相等运算符应该具有传递性
+
+  a == b，b == c，则 a == c。
+
+- 定义了 `==`，也应该定义 `!=`。
+
+- 相等和不相等运算符的工作应该委托给另一个。
+
+## 赋值运算符
+
+### 例类
+
+```cpp
+class Foo {
+public:
+    Foo(size_t length) : arr_(new int[length]), length_(length) {}
+    Foo(const Foo &f);
+    Foo& operator=(const Foo &rhs);
+    Foo& operator=(initializer_list<int> il)
+    ~Foo() { delete p_arr_; }
+private:
+    int *arr_;
+    size_t length_;
+};
+```
+
+### 初始化列表的赋值运算符
+
+赋值运算符必须是成员。先分配空间，拷贝到新空间，然后释放旧资源，更新旧属性，以处理自赋值的情况。
+
+ ```cpp
+ Foo& Foo::operator=(initializer_list<int> il)
+ {
+     try {
+         int *newArr = new int[il.size()];
+             copy(il.begin(), il.end(), newArr);
+         delete[] arr_;
+         arr_ = newArr;
+         length_ = il.size();
+     } catch (e) {
+         abort();
+     }
+     return *this;
+ }
+ ```
+
+### 复合赋值运算符
+
+虽然不一定是成员，但还是倾向于定义在类的内部。
+
+```cpp
+Person& Person::operator+=(const Person &rhs)
+{
+    name += rhs.name;
+    age += rhs.age;
+    return *this;
+}
+```
+
+## 下标运算符
+
+- 返回元素的引用。
+- 最好同时定义常量版本和非常量版本。
+
+```cpp
+Foo& Foo::operator[](size_t n)
+{ return arr_[n]; }
+const Foo& Foo::operator[](size_t n)
+{ return arr_[n]; }
+```
+
+## 递增和递减运算符
+
+在迭代器类通常会实现递增递减运算符。
+
+### 区分前置和后置
+
+```cpp
+class Foo {
+public:
+    FooPtr operator++(int);	// 提供一个int区分其为后置版本。
+    FooPtr operator++();	// 前置版本。
+};
+```
+
+## 成员访问运算符
+
+在迭代器类和指针类常常会用到解引用符 `*`。
+
+```cpp
+class Ptr {
+public:
+    string& operator*() const { return *this; }
+    string* operator->() const { return &this->operator*(); }
+};
+```
+
+### 箭头运算符返回值的限定
+
+必须返回类的指针，或者自定义了箭头运算符的某个类的对象（如果执行的结果本身含有重载的 `->` ，则会重复调用该运算符，直到返回类的指针）。
+
+## 函数调用运算符
+
+```cpp
+struct AbsInt {
+    int operator()(int val) const {
+        return val < 0 ? -val : val;
+    }
+};
+AbsInt absObj;
+auto i = absObj(-1);
+```
+
+## 重载、类型转换与运算符
+
+构造函数：其他类型 -> 此类
+
+类转换运算符：此类 -> 其他类型
+
+### 类型转换运算符
+
+`operator type() const`
+
+```cpp
+class SmallInt {
+public:
+    SmallInt(int i = 0) : val(i)
+    {
+        if(i < 0 || i> 255)
+            throw std::out_of_tange("Bad SmallInt value");
+    }
+    operator int() const { return val; }
+};
+```
+
+```cpp
+SmallInt si;
+si = 5;	// 5 隐式转换为SmallInt
+si + 3;	// si 隐式转换为 int，然后执行整数加法
+```
 
