@@ -74,6 +74,14 @@
     //dp[i]=max(dp[i-1]+x[i],x[i]);
     ```
 
+## [70. 爬楼梯 - 力扣（Leetcode）](https://leetcode.cn/problems/climbing-stairs/solutions/)
+
+```cpp
+dp[i] = dp[i - 2] + dp[i - 1]
+```
+
+dp[i] 为走到第i层的方法数目。由于只能由第i - 1和第i - 2层走到第i层，故有上述转移方程。
+
 # 位运算
 
 *   393（UTF-8编码验证）
