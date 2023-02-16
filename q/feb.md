@@ -259,3 +259,134 @@ int lengthOfLongestSubstring(string s) {
 }
 ```
 
+## [剑指 Offer 34. 二叉树中和为某一值的路径 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-shu-zhong-he-wei-mou-yi-zhi-de-lu-jing-lcof/submissions/402892122/)
+
+### wa
+
+
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> pathSum(TreeNode* root, int target) {
+        t = target;
+        if(root)
+            dfs(root, 0, true);
+        return v;
+    }
+    void dfs(TreeNode *tree, int sum, bool flag) 
+    {
+        if(tree) {
+            p.push_back(tree->val);
+            dfs(tree->left, sum + tree->val, true);
+            // 在此处pop只能保证延左结点返回时会回溯。
+            dfs(tree->right, sum + tree->val, false);
+            p.pop_back();	// 该位置防止v空时的pop，此处的val必然存在；在此处pop时保证经过该节点返回时都会pop。
+        } else if(t == sum && flag) {
+            // 不能在此处使用flag判断p是否符合条件
+            // 原因是此处的状态不能保证是叶子结点，只知道tree是nullptr，而不知道tree的父节点是否为叶子结点
+            // 故需要使用另外一种递归结构
+            if(t == sum) {
+                v.push_back(p);
+            }
+        }
+    }
+    int t;
+    vector<vector<int>> v;
+    vector<int> p;
+};
+```
+
+### ac
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> pathSum(TreeNode* root, int target) {
+        t = target;
+        // root 为空时不能返回[[]]，只能返回[]
+        if(root)
+            dfs(root, 0);
+        return v;
+    }
+    void dfs(TreeNode *tree, int sum) 
+    {
+        // tree必不为空
+        p.push_back(tree->val);
+        if(!tree->left && !tree->right) {
+            if(sum + tree->val == t)	// 注意此处的sum还未加上tree->val
+                v.push_back(p);
+        } else {
+            if(tree->left) 
+                dfs(tree->left, sum + tree->val);
+            if(tree->right) 
+                dfs(tree->right, sum + tree->val);
+        }
+        p.pop_back();
+    }
+    int t;
+    vector<vector<int>> v;
+    vector<int> p;
+};
+```
+
+## [剑指 Offer 54. 二叉搜索树的第k大节点 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-sou-suo-shu-de-di-kda-jie-dian-lcof/)
+
+二叉搜索树的中序遍历为 **递增序列** 。
+
+```cpp
+class Solution {
+public:
+    int kthLargest(TreeNode* root, int k) {
+        t = k;
+        dfs(root);
+        return res;
+    }
+    void dfs(TreeNode *root)
+    {
+        if(root && t) {	// t为0时提前返回
+            dfs(root->right);
+            if(!--t) {
+                res = root->val;	// 此时的res符合题意
+                return;				// 提前返回
+            }
+            dfs(root->left);
+        }
+    }
+    int t;
+    int res;
+};
+```
+
+## [剑指 Offer 36. 二叉搜索树与双向链表 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
+
+```cpp
+class Solution {
+public:
+    Node* treeToDoublyList(Node* root) {
+        if(!root)	// root为nullptr时不能返回v.front()
+            return nullptr;
+        dfs(root);
+        for(int i = 0; i < v.size() - 1; ++i) {
+            v[i]->right = v[i + 1];
+        }
+        for(int i = 1; i < v.size(); ++i) {
+            v[i]->left = v[i - 1];
+        }
+        v.back()->right = v.front();
+        v.front()->left = v.back();
+
+        return v.front();
+    }
+    void dfs(Node *tree) 
+    {
+        if(tree) {
+            dfs(tree->left);
+            v.push_back(tree);
+            dfs(tree->right);
+        }
+    } 
+    vector<Node*> v;
+};
+```
+
