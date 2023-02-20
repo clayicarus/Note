@@ -185,3 +185,59 @@ while(mid != end && *mid !=sought){
 }
 ```
 
+## upper_bound / lower_bound的实现
+
+- 初始化左区间长度（步长）、中点位置、区间长度
+- 总区间长度为 0 的时候找到目标，返回左端点first
+
+```cpp
+template<class ForwardIt, class T>
+ForwardIt lower_bound(ForwardIt first, ForwardIt last, const T& value)
+{
+    ForwardIt it;
+    typename std::iterator_traits<ForwardIt>::difference_type count, step;	// 不知道是static变量还是类型，需要用typename显式表示类型
+    count = std::distance(first, last);	// 搜索区间长度
+ 
+    while (count > 0)
+    {
+        it = first; 		// first是区间的左端点
+        step = count / 2; 	// 左区间的长度
+        std::advance(it, step);	// it为区间中点
+ 
+        if (*it < value)	// 返回第一个大于等于value的元素
+        {	// 中点比目标值小，移动左端点到中点处
+            first = ++it; 	// 更新区间左端点
+            count -= step + 1; // 区间长度减少了 step + 1（右区间长度）
+        }
+        else
+            count = step;	// 区间长度更新为左区间长度
+    }
+ 
+    return first;
+}
+```
+
+```cpp
+template<class ForwardIt, class T>
+ForwartIt upper_bound(ForwardIt first, ForwardIt last, const T &value)
+{
+    ForwartIt it;
+    typename std::iterator_traits<ForwardIt>::difference_type count, step;
+    count = std::distance(first, last);
+    
+    while(count > 0) {
+        step = count / 2;	// 左区间长度
+        it = first;
+        std::advance(it, step);
+        
+        if(!(value < *it)) {	// 第一个大于value的元素，使用 < 表示，由 *it <= value 去推导
+            first = ++it;	// 此处不要使用it + 1，不一定有对应的重载
+            count -= step + 1;
+        } else 
+            count = step;
+    }
+    
+    return first;
+}
+```
+

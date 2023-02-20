@@ -1249,12 +1249,12 @@ sort(word.begin(), word.end(), isShorter);
 
 ## 泛型算法与迭代器
 
-| 迭代器类型                     | 作用                   |
-| ------------------------------ | ---------------------- |
-| 插入迭代器（insert iterator）  | 向容器插入元素         |
-| 流迭代器（stream iterator）    | 遍历关联的 IO 流       |
-| 反向迭代器（reverse iterator） | 从最后一个元素向前迭代 |
-| 移动迭代器（move iterator）    | 不拷贝，直接移动       |
+| 迭代器类型 | 作用                   |
+| ---------- | ---------------------- |
+| 插入迭代器 | 向容器插入元素         |
+| 流迭代器   | 遍历关联的 IO 流       |
+| 反向迭代器 | 从最后一个元素向前迭代 |
+| 移动迭代器 | 不拷贝，直接移动       |
 
 ### 插入迭代器（inserter_iterator）
 
@@ -1305,7 +1305,23 @@ sort(word.begin(), word.end(), isShorter);
 
 ### iostream 迭代器
 
-暂时不写。
+| 类型               | 作用               |
+| ------------------ | ------------------ |
+| istream_iterator<> | 使用 >> 读取输入流 |
+| ostream_iterator<> | 使用 << 写入输出流 |
+
+定义默认构造的iostream迭代器为eof。
+
+```cpp
+istream_iterator<int> in(cin);
+istream_iterator<int> eof;
+vector<int> v;
+while(in != eof) {
+    v.push_back(*in++);
+}
+```
+
+
 
 ### 反向迭代器
 
