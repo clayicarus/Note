@@ -30,3 +30,35 @@ public:
 };
 ```
 
+wa
+
+```cpp
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        ans = nullptr;
+        flag = false;
+        pt = p;
+        qt = q;
+        dfs(root, nullptr);
+        return ans;
+    }
+    void dfs(TreeNode *tr, TreeNode *fa) 
+    {
+        if(tr && !flag) {
+            dfs(tr->left, tr);
+            dfs(tr->right, tr);
+            if(flag)
+                return;
+            if(tr == qt || tr == pt) {
+                flag = true;
+            }
+            ans = fa;
+        }
+    }
+    TreeNode *ans;
+    bool flag;
+    TreeNode *pt, *qt;
+};
+```
+
