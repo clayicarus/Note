@@ -360,6 +360,8 @@ public:
 
 ## [剑指 Offer 36. 二叉搜索树与双向链表 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
 
+中序遍历后，遍历两次数组，将节点连接。
+
 ```cpp
 class Solution {
 public:
@@ -390,3 +392,4 @@ public:
 };
 ```
 
+### 
