@@ -523,3 +523,17 @@ public:
 
 ## [剑指 Offer 64. 求1+2+…+n - 力扣（Leetcode）](https://leetcode.cn/problems/qiu-12n-lcof/description/)
 
+```cpp
+int res() {
+    bool arr[n][n + 1];
+    return sizeof(arr) >> 1;	// n * (n + 1) / 2
+}
+```
+
+## [剑指 Offer 68 - II. 二叉树的最近公共祖先 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-shu-de-zui-jin-gong-gong-zu-xian-lcof/description/)
+
+p，q都不为nullptr，故树非空。
+
+```cpp
+```
+
