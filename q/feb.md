@@ -678,7 +678,121 @@ void dfs(TreeNode *tr, int val)
   auto lsz = rt_idx[root_val] - 0;
   ```
 
+## [剑指 Offer 16. 数值的整数次方 - 力扣（Leetcode）](https://leetcode.cn/problems/shu-zhi-de-zheng-shu-ci-fang-lcof/description/)
 
+快速幂：x^n = x^(n/2) * x^(n/2)
 
+```cpp
+class Solution {
+public:
+    double quickMul(double x, long long n) {
+        assert(n >= 0);
+        if (n == 0) {
+            return 1.0;
+        }
+        auto temp = quickMul(x, n / 2);
+        return n % 2 == 0 ? temp * temp : temp * temp * x;
+    }
+    double myPow(double x, int n) {
+        return n < 0 ? 1. / quickMul(x, -static_cast<long long>(n)) : quickMul(x, -n);
+    }
+};
+```
 
+## [剑指 Offer 33. 二叉搜索树的后序遍历序列 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/description/)
+
+- 后序遍历：[[左], [右], 根]
+
+- 搜索二叉树：[左] <= 根 <= [右]
+
+- 节点值均不相同：[左] < 根 < [右]
+
+- 右子树end：p.begin() + end - 1;
+
+- root_val：*rend
+
+- 第一个大于root_val的位置即为右子树的起始位置
+
+  注意搜索区间为 [p.begin() + beg, rend) 而不是 [p.begin() + beg, p.begin() + end) ，因为右子树的起始位置不可能大于rend
+
+```cpp
+// 直接从 [0, postorder.size()] 开始递归
+class Solution {
+public:
+    bool verifyPostorder(vector<int>& postorder) {
+        post = &postorder;
+        return verify(0, postorder.size());
+    }
+    bool verify(int beg, int end)
+    {
+        assert(end >= beg);
+        auto sz = end - beg;
+        assert(sz >= 0);
+        if(!sz)
+            return true;
+        auto &p = *post;
+        auto rend = p.begin() + end - 1;
+        auto root_val = *rend;
+        auto rbeg = find_if(p.begin() + beg, rend, [root_val](const auto &a){return a > root_val;});
+        auto lsz = distance(p.begin() + beg, rbeg);
+        auto rsz = distance(rbeg, rend);
+        assert(rbeg <= rend);
+
+        if(find_if(rbeg, rend, [root_val](const auto &a){return root_val > a;}) != rend)
+            return false;
+        return verify(beg, beg + lsz) && verify(beg + lsz, beg + lsz + rsz);
+    }
+    vector<int> *post;
+};
+```
+
+# day22
+
+## [剑指 Offer 56 - I. 数组中数字出现的次数 - 力扣（Leetcode）](https://leetcode.cn/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/description/)
+
+考虑异或的性质：对某一位异或，该位相同则为0，不同则为1。
+
+不是0就是1。对整个数组异或，等价于有两个不同的数字异或，结果至少有一位为1，据该位是否为0就可以将数组分成两组，相同数字必在同一组，不同数字必然不在同一组。
+
+## [剑指 Offer 65. 不用加减乘除做加法 - 力扣（Leetcode）](https://leetcode.cn/problems/bu-yong-jia-jian-cheng-chu-zuo-jia-fa-lcof/description/)
+
+不带进位加法结果为 a ^ b，进位结果为 (a & b) << 1。
+
+```cpp
+int add(int a, int b) {
+    while (b != 0) {
+        unsigned int carry = (unsigned int)(a & b) << 1;
+        a = a ^ b;
+        b = carry;
+    }
+    return a;
+}
+```
+
+## [剑指 Offer 56 - II. 数组中数字出现的次数 II - 力扣（Leetcode）](https://leetcode.cn/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof/description/)
+
+直接上哈希表。
+
+# day23
+
+## [剑指 Offer 66. 构建乘积数组 - 力扣（Leetcode）](https://leetcode.cn/problems/gou-jian-cheng-ji-shu-zu-lcof/description/)
+
+前缀和（？）。x[i] 为 [0, i) 所有数的乘积，y[i] 为 (i, end) 所有数的乘积，则 res[i] = x[i] * y[i]。
+
+- x[i] = x[i - 1] * a[i - 1]
+- y[i] = y[i + 1] * a[i + 1]
+
+```cpp
+vector<int> constructArr(vector<int>& a) {
+	.....
+    y.back() = 1;
+    for(int i = y.size() - 2; i >= 0; --i) {	// 注意此处是 --i
+        y[i] = y[i + 1] * a[i + 1];
+    }
+	.....
+    return res;
+}
+```
+
+# day24
 
