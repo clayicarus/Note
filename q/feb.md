@@ -746,6 +746,12 @@ public:
 };
 ```
 
+# day21
+
+## [剑指 Offer 65. 不用加减乘除做加法 - 力扣（Leetcode）](https://leetcode.cn/problems/bu-yong-jia-jian-cheng-chu-zuo-jia-fa-lcof/description/)
+
+还没看。
+
 # day22
 
 ## [剑指 Offer 56 - I. 数组中数字出现的次数 - 力扣（Leetcode）](https://leetcode.cn/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/description/)
@@ -795,4 +801,52 @@ vector<int> constructArr(vector<int>& a) {
 ```
 
 # day24
+
+## [剑指 Offer 14- I. 剪绳子 - 力扣（Leetcode）](https://leetcode.cn/problems/jian-sheng-zi-lcof/description/)
+
+- 需要考虑到底应该分成多少份，大于等于两份
+
+- 设dp[i]为将i分成两份以上得到的最大乘积
+- i = (i -j) + j，j <= i / 2
+
+```cpp
+int res = 0;
+for(int j = 1; j <= i/2; ++j) {
+    vector<int> temp(4);
+    temp[0] = j * (i - j);
+    temp[1] = dp[j] * (i - j);
+    temp[2] = j * dp[i - j];
+    temp[3] = dp[j] * dp[i - j];
+    res = max(res, *max_element(temp.begin(), temp.end()));
+}
+dp[i] = res;
+```
+
+## [剑指 Offer 62. 圆圈中最后剩下的数字 - 力扣（Leetcode）](https://leetcode.cn/problems/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-lcof/description/)
+
+不会。
+
+# day25
+
+## [剑指 Offer 31. 栈的压入、弹出序列 - 力扣（Leetcode）](https://leetcode.cn/problems/zhan-de-ya-ru-dan-chu-xu-lie-lcof/description/)
+
+可以使用一个栈模拟该过程。栈中元素不重复，可以哈希表来记录栈中有哪些元素。遍历弹出序列的元素，元素要么在栈中，要么在待入栈序列中。
+
+- 元素在栈中时，弹出栈的元素，直到找到该元素被弹出。
+- 元素在待入栈序列时（即不在栈中时），将待入栈元素入栈并在哈希表中标记，直到找到该元素出现。若没有找到该元素，则返回false。
+- 弹出元素顺利遍历结束即可返回true。
+
+# day26
+
+## [剑指 Offer 20. 表示数值的字符串 - 力扣（Leetcode）](https://leetcode.cn/problems/biao-shi-shu-zhi-de-zi-fu-chuan-lcof/description/)
+
+自动机？不会。
+
+## [面试题67. 把字符串转换成整数 - 力扣（Leetcode）](https://leetcode.cn/problems/ba-zi-fu-chuan-zhuan-huan-cheng-zheng-shu-lcof/description/)
+
+可以模拟，比较冗长。
+
+自动机？不会。
+
+
 
