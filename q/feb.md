@@ -1,5 +1,7 @@
 # 二月刷题记录
 
+# day2
+
 ## [剑指 Offer 24. 反转链表 - 力扣（Leetcode）](https://leetcode.cn/problems/fan-zhuan-lian-biao-lcof/description/?envType=study-plan&id=lcof&plan=lcof&plan_progress=b3onxkr)
 
 ### 递归解法
@@ -95,6 +97,8 @@ Node* copyRandomList(Node* head) {
 }
 ```
 
+# day8
+
 ## [70. 爬楼梯 - 力扣（Leetcode）](https://leetcode.cn/problems/climbing-stairs/solutions/)
 
 ```cpp
@@ -118,6 +122,8 @@ if(s[i - 2] == '2' && s[i - 1] <= '5'
 }
 ```
 
+# day12
+
 ## [剑指 Offer 25. 合并两个排序的链表 - 力扣（Leetcode）](https://leetcode.cn/problems/he-bing-liang-ge-pai-xu-de-lian-biao-lcof/?envType=study-plan&id=lcof&plan=lcof&plan_progress=b3onxkr)
 
 ```cpp
@@ -138,6 +144,8 @@ ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
     return res;
 }
 ```
+
+# day7
 
 ## [剑指 Offer 26. 树的子结构 - 力扣（Leetcode）](https://leetcode.cn/problems/shu-de-zi-jie-gou-lcof/description/)
 
@@ -184,6 +192,8 @@ bool isSame(TreeNode *t1, TreeNode *t2)
     }
 }
 ```
+
+# day9
 
 ## [剑指 Offer 47. 礼物的最大价值 - 力扣（Leetcode）](https://leetcode.cn/problems/li-wu-de-zui-da-jie-zhi-lcof/description/)
 
@@ -232,6 +242,8 @@ public:
 };
 ```
 
+# day10
+
 ## [剑指 Offer 48. 最长不含重复字符的子字符串 - 力扣（Leetcode）](https://leetcode.cn/problems/zui-chang-bu-han-zhong-fu-zi-fu-de-zi-zi-fu-chuan-lcof/?envType=study-plan&id=lcof&plan=lcof&plan_progress=b3onxkr)
 
 双指针，当[i, j)没有重复字符时，mark[s[j++]] = false，直到出现重复字符mark[j]；出现重复字符后mark[s[i++]] = true，直到mark[s[j]] == true。然后继续移动j，长度即为 j - i 。
@@ -258,6 +270,8 @@ int lengthOfLongestSubstring(string s) {
     return res;
 }
 ```
+
+# day15
 
 ## [剑指 Offer 34. 二叉树中和为某一值的路径 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-shu-zhong-he-wei-mou-yi-zhi-de-lu-jing-lcof/submissions/402892122/)
 
@@ -409,6 +423,8 @@ void dfs(TreeNode *root)
 }
 ```
 
+# day16
+
 ## [面试题45. 把数组排成最小的数 - 力扣（Leetcode）](https://leetcode.cn/problems/ba-shu-zu-pai-cheng-zui-xiao-de-shu-lcof/?envType=study-plan&id=lcof&plan=lcof&plan_progress=b3onxkr)
 
 ```cpp
@@ -416,6 +432,8 @@ sort(v.begin(), v.end(), [](const auto &a, const auto &b){
     return a + b < b + a;
 });
 ```
+
+# day17
 
 ## [剑指 Offer 40. 最小的k个数 - 力扣（Leetcode）](https://leetcode.cn/problems/zui-xiao-de-kge-shu-lcof/description/)
 
@@ -486,6 +504,8 @@ void addNum(int num) {
 }
 ```
 
+# day18
+
 ## [剑指 Offer 55 - I. 二叉树的深度 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-shu-de-shen-du-lcof/?envType=study-plan&id=lcof&plan=lcof&plan_progress=b3onxkr)
 
 动态规划的思想，左右子树的深度最大值 + 1即为树的高度。
@@ -521,6 +541,8 @@ public:
 };
 ```
 
+# day19
+
 ## [剑指 Offer 64. 求1+2+…+n - 力扣（Leetcode）](https://leetcode.cn/problems/qiu-12n-lcof/description/)
 
 ```cpp
@@ -534,6 +556,129 @@ int res() {
 
 p，q都不为nullptr，故树非空。
 
+遍历时记录所有结点的父节点fa[node->left] = node。
+
+之后从fa[p]开始遍历，直到遍历到根节点的父节点（nullptr），记录是否访问过。
+
+最后从fa[q]开始遍历，遍历到访问过的结点就即为最近的祖先。
+
 ```cpp
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        fa[root->val] = nullptr;
+        dfs(root);
+        while(p != nullptr) {
+            mark[p->val] = true;
+            p = fa[p->val];
+        }
+        while(q != nullptr) {
+            if(mark[q->val]) return q;
+            q = fa[q->val];
+        }
+        return nullptr;
+    }
+    void dfs(TreeNode *tr) 
+    {
+        if(tr->left) {
+            fa[tr->left->val] = tr;
+            dfs(tr->left);
+        }
+        if(tr->right) {
+            fa[tr->right->val] = tr;
+            dfs(tr->right);
+        }
+    }
+    map<int, TreeNode*> fa;
+    map<int, bool> mark;
+};
 ```
+
+## [剑指 Offer 68 - I. 二叉搜索树的最近公共祖先 - 力扣（Leetcode）](https://leetcode.cn/problems/er-cha-sou-suo-shu-de-zui-jin-gong-gong-zu-xian-lcof/description/)
+
+思路与上一道题相同，这道题可以快速遍历到p、q结点，然后直接返回即可。
+
+```cpp
+void dfs(TreeNode *tr, int val)
+{
+    if(tr->val < val) {
+        fa[tr->right] = tr;
+        dfs(tr->right, val);
+    } 
+    if(val < tr->val) {
+        fa[tr->left] = tr;
+        dfs(tr->left, val);
+    }
+}
+```
+
+# day20
+
+## [剑指 Offer 07. 重建二叉树 - 力扣（Leetcode）](https://leetcode.cn/problems/zhong-jian-er-cha-shu-lcof/description/)
+
+- 考虑前序、中序遍历的性质
+
+  ```
+  preorder: [根, [左子树], [右子树]]
+  inorder: [[左子树], 根, [右子树]]
+  ```
+
+- 考虑构造二叉树需要知道什么条件：
+
+  需要知道根节点的值，左子树，右子树。
+
+  ```cpp
+  build() {
+      ...
+      auto *p = new TreeNode(root_val);
+      p->left = build();
+      p->right = build();
+      ...
+  }
+  ```
+
+- 定义tr_in<int, int>表示需要构造的树在inorder中的范围
+
+  定义tr_pre<int, int>表示需要构造的树在preorder中的范围
+
+  - 则root_val = preorder[tr_pre.first]
+
+  - 需要知道左子树的大小才可以确定左子树在preorder中的范围
+
+    而左子树的大小lsz = 根在inorder的位置 - tr_in.first。
+
+  - 此后也可以确定右子树在preorder的位置 [tr_pre.first + 1 + lsz, tr_pre.second)
+  - 当需要构造树的大小为0时返回nullptr
+
+- 定义build函数，输入树在数组的范围，返回构造后的树
+
+  ```cpp
+  TreeNode *build(pair<int, int> tr_pre, pair<int, int> tr_in)
+  {
+      auto sz = tr_pre.first - tr_pre.second;
+      assert(sz == tr_in.first - tr_in.second);
+      if(!sz) 
+          return nullptr;
+      auto root_val = (*pre)[tr_pre.first];
+      auto tree = new TreeNode(root_val);
+      auto lsz = rt_idx.at(root_val) - tr_in.first;
+      tree->left = build({tr_pre.first + 1, tr_pre.first + 1 + lsz}, {tr_in.first, tr_in.first + lsz});
+      tree->right = build({tr_pre.first + 1 + lsz, tr_pre.second}, {tr_in.first + lsz + 1, tr_in.second});
+      return tree;
+  }
+  ```
+
+- 递归初始化
+
+  考虑到经常需要搜索root_val在inorder中的位置，可以用哈希表保存每个值的索引。
+
+  ```cpp
+  root_val = preorder[0];
+  tr_pre/in = {0, pre/in.size()}
+  auto lsz = rt_idx[root_val] - 0;
+  ```
+
+
+
+
 
