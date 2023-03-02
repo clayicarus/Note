@@ -1,26 +1,6 @@
-## 安装 Linux Developer Tools
-
-在 Linux 的不同发行版中，您需要安装不同的工具包:
-
-- Debian，Ubuntu，popOS 或其他基于 Debian 的发行版:
-
-```sh
-$ sudo apt-get update
-$ sudo apt-get install build-essential tar curl zip unzip
-```
-
-- CentOS
-
-```sh
-$ sudo yum install centos-release-scl
-$ sudo yum install devtoolset-7
-$ scl enable devtoolset-7 bash
-```
-
-对于其他的发行版，请确保已安装 g++ 6 或更新的版本。
-若您希望添加特定发行版的说明，[请提交一个 PR][contributing:submit-pr]!
-
 ## 快速开始: Windows
+
+linux运行sh就可以了。
 
 ```cmd
 > git clone https://github.com/microsoft/vcpkg
