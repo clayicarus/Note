@@ -164,3 +164,16 @@ int fsetpos(FILE * fp, const fpos_t * pos);
 
 
 # 格式化输入/输出
+
+```cpp
+void fmt_scanf(void)
+{
+    const int max_len = 5;
+    char temp[max_len];
+    char fmt[10];
+    sprintf(fmt, "%%%ds", max_len - 1);
+    scanf(fmt, temp);   // fmt == "%4s"
+    printf("%s", temp);
+}
+```
+
