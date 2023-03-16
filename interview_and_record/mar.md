@@ -168,7 +168,7 @@ return res < nums.size() - 1 ? res : -1;
 
 # 字节笔试
 
-## 字母交换
+## [字母交换](https://www.nowcoder.com/questionTerminal/43488319efef4edabada3ca481068762)
 
 只能交换相邻两个字母。
 
@@ -231,6 +231,86 @@ for(int i = 0; i < poz.size(); ++i) {
     res = max(res, cur_len);
 }
 ```
+
+## [手串](https://www.nowcoder.com/questionTerminal/429c2c5a984540d5ab7b6fa6f0aaa8b5)
+
+- 连续m个珠子不能出现两种相同的颜色
+
+  枚举所有颜色，记录每种颜色所在的索引，只要每个珠子之间的距离 >= m（左闭右开的思想），就不会在连续m颗珠子中出现两种相同的颜色。
+
+- 环形距离
+
+  考虑两个平面的夹角，夹角 a > pi 时，a = pi - a，pi为总长度2pi的一半。
+
+  ```cpp
+  int dis = idx[j] - idx[i];
+  if(dis > n / 2) dis = n - dis;
+  ```
+
+- 暴力求解最小值
+
+```cpp
+int main() 
+{
+    int n, m, c;
+    cin >> n >> m >> c;
+    vector<vector<int>> col_idx(51);
+    for(int i = 0; i < n; ++i) {
+        cin >> num_col;
+        for(int j = 0; j < num_col; ++j) {
+            cin >> c;
+            col_idx[c].push_back(i);
+        }
+    }
+    int res = 0;
+    for(auto &idx : col_idx) {
+        for(int i = 0; i < idx.size(); ++i) {
+            for(int j = i + 1; j < idx.size(); ++j) {
+                auto dis = idx[j] - idx[i];
+                if(dis > n / 2) dis = n - dis;
+                if(dis < m) {
+                    ++res;
+                    i = idx.size();
+                    break;
+                }
+            }
+        }
+    }
+    cout << res << '\n';
+    return 0;
+}
+```
+
+## [用户喜好](https://www.nowcoder.com/questionTerminal/66b68750cf63406ca1db25d4ad6febbf)
+
+记录每个喜好值 k 对应的用户的索引，此时得到的索引数组是递增的。
+
+查询时根据 k 找到喜好用户的索引列表，找到 i >= l，i <= r 的区间范围（二分查找），计算区间长度即可得到答案。
+
+```cpp
+int main() 
+{
+    int n;
+    cin >> n;
+    for(int i = 1; i <= n; ++i) {
+        int k;
+        cin >> k;
+        k_idx[k].push_back(i);
+    }
+    cin >> q;
+    for(int i = 0; i < q; ++i) {
+        int l, r, k;
+        cin >> l >> r >> k;
+        auto &idx = k_idx[k];
+        auto b = lower_bound(idx.begin(), idx.end(), l);
+        auto e = upper_bound(idx.begin(), idx.end(), r);
+        if(e > b) cout << distance(b, e) << '\n';
+        else cout << 0 << '\n';
+    }
+}
+```
+
+
 
 # 剑心游戏3月笔试
 
