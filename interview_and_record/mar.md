@@ -310,6 +310,144 @@ int main()
 }
 ```
 
+## [推箱子](https://www.nowcoder.com/questionTerminal/d66a7a8b8e8a4acca7b1e1c8ef476354)
+
+求人的最少移动次数。从题目中抽象出状态。
+
+- 为什么要用四维数组存状态？
+
+  如果将箱子和人切割，分别用两个二维数组作为记录数组，则会导致无法进行bfs，因为箱子在开始bfs时没有进行移动。
+
+  ```cpp
+  if(... || p_vis[p_n.first][p_n.first] || b_vis[b_n.first][b_n.second]) 
+      continue;
+  ```
+
+  应当将人和箱子联合考虑，设空间的大小为 n * m ，人和箱子在空间中的分布情况就有 (n * m) * (n * m) 种，所以要用四维数组保存其状态，进行对状态的bfs。
+
+- 此时bfs会遍历地图上所有的空间分布情况，所以其返回值即为最小移动步数。
+
+- 当人物移动到箱子所在的位置时，箱子才会发生移动，移动的方向和人物移动的方向是一致的。
+
+- 本质上是将转移后的状态入队。
+
+- 一个状态可以由多种状态转移得来（一个节点可由多个节点转移得到）。
+
+  所以不仅要在入队前判断是否访问过，在出队后也需要加以判断是否访问过。
+
+  可以在入队前就把下一个状态标记为已访问，这样就不会在入队时重复入队（在转移前就标记之）。
+
+```cpp
+int bfs(const pair<int, int> &p, const pair<int, int> &b)  
+{
+    auto &mat = *pm;
+    int m_i = mat.size();
+    int m_j = mat.front().size();
+    
+    vector status(m_i, vector(m_j, vector(m_i, vector<int>(m_j))));
+    
+    queue<pair<pair<int, int>, pair<int, int>>> q;
+    status[p.first][p.second][b.first][b.second] = true;	// (+)
+    q.emplace(p, b);
+    int step = 0;
+    while(!q.empty()) {
+        auto sz = q.size();
+        while(sz--) {	// 这种求距离的方法只适合边权固定的题目。
+            const auto [p_c, b_c] = q.front();
+            q.pop();
+            // if(status[p_c.first][p_c.second][b_c.first][b_c.second]) continue; 
+            // status[p_c.first][p_c.second][b_c.first][b_c.second] = true;
+            if(mat[b_c.first][b_c.second] == 'E') return step;
+            for(const auto &d : dir) {	// 此处可能会导致没有访问过的状态多次入队。可以考虑在这里就将下一个将要访问的状态标记。
+                pair<int, int> p_n = { p_c.first + d[0], p_c.second + d[1] };
+                pair<int, int> b_n = b_c;
+                if(p_n == b_c) {
+                    b_n.first += d[0];
+                    b_n.second += d[1];
+                }
+                if(p_n.first < 0 || p_n.second < 0 || b_n.first < 0 || b_n.second < 0
+                    || p_n.first == m_i || p_n.second == m_j || b_n.first == m_i || b_n.second == m_j
+                    || status[p_n.first][p_n.second][b_n.first][b_n.second]) 
+                    continue;
+                status[p_n.first][p_n.second][b_n.first][b_n.second] = true;	// (+)
+                if(mat[b_n.first][b_n.second] != '#' && mat[p_n.first][p_n.second] != '#')
+                    q.emplace(p_n, b_n);
+            }
+        }
+        ++step;
+    }
+    return -1;
+}
+```
+
+## [1263. 推箱子 - 力扣（Leetcode）](https://leetcode.cn/problems/minimum-moves-to-move-a-box-to-their-target-location/)
+
+求箱子最少被推动的次数。与字节的推箱子不同。
+
+- 字节的推箱子，只要人发生移动就会状态转移，转移的权值均为 1。
+- 这道题的推箱子也是只要人发生移动就会状态转移，但是转移的权值需要分类讨论。
+
+带权有向图的最小距离，箱子发生移动时的状态转移的边权为 1，只有人发生移动的边权为 0 。比较特殊的dijkstra算法（不需要优先队列）。
+
+考虑在入队前就更新并判定状态。
+
+### dijkstra算法
+
+每次都从最小权值边开始处理，只要他能到达，就一定是最短路径。
+
+**最短路径的子路径仍然是最短路径**
+
+设S->T的最短路径经过 A ，则这条由S->A的路径也是所有由S->A的路径中最短的一条路径，否则S->T这条路径就不是最短的。这也是为什么算法每次都从当前节点开销最少的邻接节点开始下一轮处理。
+
+入队时使用优先队列优化之。
+
+**类比电梯题，需要准备一个距离数组**
+
+dis[A] 表示起始状态到 A 状态的最小距离。
+
+```cpp
+deque<pair<pair<int, int>, pair<int, int>>> q;
+vector visited(m, vector(n, vector(m, vector<bool>(n, false))));
+vector dis(m, vector(n, vector(m, vector<int>(n, -1))));
+
+visited[p.first][p.second][box.first][box.second] = true;
+dis[p.first][p.second][box.first][box.second] = 0;
+q.emplace_back(p, box);
+while(!q.empty()) {
+    const auto [cp, cbox] = q.front();
+    auto &[cp_i, cp_j] = cp;
+    auto &[cbox_i, cbox_j] = cbox;
+    q.pop_front();
+
+    for(const auto &d : dir) {
+        auto weight = 0;
+        pair<int, int> np { cp_i + d.first, cp_j + d.second };
+        pair<int, int> nbox { cbox_i, cbox_j }; 
+        auto [np_i, np_j] = np;
+        auto &[nbox_i, nbox_j] = nbox;
+        if(np_i == cbox_i && np_j == cbox_j) {
+            nbox_i += d.first;
+            nbox_j += d.second;
+            weight = 1;
+        }
+
+        if(nbox_i < 0 || nbox_j < 0 || np_i < 0 || np_j < 0
+        || nbox_i == m || nbox_j == n || np_i == m || np_j == n
+        || visited[np_i][np_j][nbox_i][nbox_j])
+            continue;
+
+        dis[np_i][np_j][nbox_i][nbox_j] = dis[cp_i][cp_j][cbox_i][cbox_j] + weight;
+        visited[np_i][np_j][nbox_i][nbox_j] = true;
+        if(grid[cbox_i][cbox_j] == 'T') return dis[cp_i][cp_j][cbox_i][cbox_j];
+        if(grid[np_i][np_j] != '#' && grid[nbox_i][nbox_j] != '#') {
+            if(weight == 0) q.emplace_front(np, nbox);
+            else q.emplace_back(np, nbox);
+        }
+    }
+}
+return -1;
+```
+
 
 
 # 剑心游戏3月笔试
