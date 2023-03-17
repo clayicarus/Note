@@ -316,6 +316,7 @@ int minDistance(const vector<int> &fl, int n, int a, int b)
     while(!q.empty()){
         i = q.front();	//在第i层。
         q.pop();
+        // 虽然可以在这里判定是否到达，但是需要多遍历一层。
         if(i + fl[i] <= n && !mark[i + fl[i]]){
             //层数是否超出n，是否已经被访问过。
             q.push(i + fl[i]);	
@@ -328,7 +329,8 @@ int minDistance(const vector<int> &fl, int n, int a, int b)
             mark[i - fl[i]] = true;
         }
         if(mark[b])
-            //访问到了b，则对应的最短路径也找到了。
+            // 在进行下一层迭代前就可以判断之。
+            // 访问到了b，则对应的最短路径也找到了。
             break;
     }
 
