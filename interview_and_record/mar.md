@@ -407,10 +407,10 @@ dis[A] 表示起始状态到 A 状态的最小距离。
 
 ```cpp
 deque<pair<pair<int, int>, pair<int, int>>> q;
-vector visited(m, vector(n, vector(m, vector<bool>(n, false))));
+// vector visited(m, vector(n, vector(m, vector<bool>(n, false))));	// (-)
 vector dis(m, vector(n, vector(m, vector<int>(n, -1))));
 
-visited[p.first][p.second][box.first][box.second] = true;
+// visited[p.first][p.second][box.first][box.second] = true;		// (-)
 dis[p.first][p.second][box.first][box.second] = 0;
 q.emplace_back(p, box);
 while(!q.empty()) {
@@ -431,13 +431,18 @@ while(!q.empty()) {
             weight = 1;
         }
 
-        if(nbox_i < 0 || nbox_j < 0 || np_i < 0 || np_j < 0
-        || nbox_i == m || nbox_j == n || np_i == m || np_j == n
-        || visited[np_i][np_j][nbox_i][nbox_j])
-            continue;
+        // if(nbox_i < 0 || nbox_j < 0 || np_i < 0 || np_j < 0		// (-)
+        // || nbox_i == m || nbox_j == n || np_i == m || np_j == n	// (-)
+        // || visited[np_i][np_j][nbox_i][nbox_j]) 					// (-)
+        //     continue;											// (-)
+        
+        if(nbox_i < 0 || nbox_j < 0 || np_i < 0 || np_j < 0			// (+)
+          || nbox_i == m || nbox_j == n || np_i == m || np_j == n	// (+)
+          || dis[np_i][np_j][nbox_i][nbox_j]) != -1)				// (+)
+            continue;												// (+)
 
         dis[np_i][np_j][nbox_i][nbox_j] = dis[cp_i][cp_j][cbox_i][cbox_j] + weight;
-        visited[np_i][np_j][nbox_i][nbox_j] = true;
+        // visited[np_i][np_j][nbox_i][nbox_j] = true;				// (-)
         if(grid[cbox_i][cbox_j] == 'T') return dis[cp_i][cp_j][cbox_i][cbox_j];
         if(grid[np_i][np_j] != '#' && grid[nbox_i][nbox_j] != '#') {
             if(weight == 0) q.emplace_front(np, nbox);
@@ -447,6 +452,8 @@ while(!q.empty()) {
 }
 return -1;
 ```
+
+- 可以用 dis\[i\]\[j\] == -1 判断是否访问过，省掉一个状态标记数组。
 
 
 
