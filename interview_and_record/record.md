@@ -179,7 +179,7 @@ bool isSameTree(TreeNode* p, TreeNode* q) {
 
 ## [565. 数组嵌套](https://leetcode.cn/problems/array-nesting/)
 
-太抽象了。dfs。
+太抽象了。dfs。看到数组的数字都不一样，就可以联想到图论了（大概）。
 
 *   将循环想象成一个环。
 
@@ -210,6 +210,40 @@ int arrayNesting(vector<int>& nums) {
     return res;
 }
 ```
+
+```cpp
+class Solution {
+public:
+    int arrayNesting(vector<int>& nums) {
+        pa = &nums;
+        mark.assign(nums.size(), false);
+        int res = 1;
+        for(int i = 0; i < nums.size(); ++i) {
+            mark[nums[i]] = true;
+            res = max(dfs(nums[i]), res);
+            // mark[nums[i]] = false;
+        }
+        return res;
+    }
+    int dfs(int i)
+    {
+        auto &a = *pa;
+        int next = a[i];
+        if(!mark[next]) {
+            mark[next] = true;
+            auto ans = 1 + dfs(next);
+            // mark[next] = false;
+            return ans;
+        } else {
+            return 1;
+        }
+    }
+    vector<bool> mark;
+    vector<int> *pa;
+};
+```
+
+
 
 ## [51. N 皇后](https://leetcode.cn/problems/n-queens/)
 
@@ -507,11 +541,44 @@ if (match(word, pattern) && match(pattern, word)) {
 
     故需要对原数组进行排序。
 
-*   按原数组的顺序，需要知道每一个元素对应的排位
+* 按原数组的顺序，需要知道每一个元素对应的排位
 
-    故考虑到哈希表，用元素值匹配其排位。
+  故考虑到哈希表，用元素值匹配其排位。
 
-*   我是傻逼。
+对数组排序并遍历，得到值->rank，遍历原数组，将值改成rank。
+
+### 离散化
+
+| 下标 idx   | 0    | 1    | 2    | 3    | 4    |
+| ---------- | ---- | ---- | ---- | ---- | ---- |
+| 原数组     | 10   | 3    | 8    | 9    | 4    |
+| 离散化数组 | 4    | 0    | 2    | 3    | 1    |
+
+如果问题只在乎数值的**相对大小** 。则可以通过离散化大大降低空间和时间复杂度。
+
+可以用map实现，元素的值为key，下标为value，这样不仅完成了数组的排序，还同时记录了元素对应原数组的下标。
+
+从1开始遍历map，据map记录的下标，直接修改原数组。
+
+遍历排序后的序列，序列值->rank，序列值->原数组下标，通过下标将原值修改为rank。
+
+```cpp
+map<int, int> m;
+for(int i = 0; i < v.size(); ++i) {
+    m[v[i]] = i;
+}
+
+```
+
+当元素有重复，而且需要求最小下标。
+
+```cpp
+muiltimap<int, int> m;
+int idx = 1;
+for(auto)
+```
+
+
 
 # 栈
 
@@ -573,6 +640,8 @@ return sta;
 *   尝试在出栈时计算重叠的时间dt，以便在出栈时计算去除重叠时间后的持续时间。
 
 ### 要点
+
+*   注意是单线程的。
 
 *   每次输入的时间是非递减的
 
@@ -771,7 +840,6 @@ public:
                 return false;
             }
         }
-    	// lambda表达式    
         for (auto &[l, r] : booked) {
             if (l < end && start < r) {
                 overlaps.emplace_back(max(l, start), min(r, end));

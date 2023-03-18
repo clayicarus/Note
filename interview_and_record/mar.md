@@ -149,7 +149,7 @@ for(auto &[_, val] : hash) {
     v.push_back(val);
 }
 sort(v.begin(), v.end(), [](const auto &a, const auto &b){
-    return a.a < b.a || a.b < b.b;
+    return a.a < b.a;
 });
 int res = 0;
 for(auto [nl, nr] : v) {
