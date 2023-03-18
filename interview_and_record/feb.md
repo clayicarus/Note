@@ -442,6 +442,9 @@ sort(v.begin(), v.end(), [](const auto &a, const auto &b){
 - 求数组中最小的k个数应该想起来堆排序
 
   注意小根堆的声明方法，greater<>即为递增序列。
+  
+  - 在sort中greater是指将大的排在前面。
+  
 
 ```cpp
 vector<int> getLeastNumbers(vector<int> &arr, int k) {
@@ -512,7 +515,7 @@ void addNum(int num) {
 
 ```cpp
 int maxDepth(TreeNode* root) {
-    return root ? max(maxDepth(root->left) + 1, maxDepth(root->right) + 1) : 0;
+    return root ? max(maxDepth(root->left), maxDepth(root->right)) + 1 : 0;
 }
 ```
 
