@@ -26,6 +26,10 @@
 
 - [MySQL 速成](./database/mysql.md)（[结合示例代码](./database/chapter2.sql)）
 
+### Web 开发
+
+- [Vue.js 速成](./web/vue.md)
+
 #### Unity 开发
 
 - [Unity 简单备忘](./unity/unity.md)
