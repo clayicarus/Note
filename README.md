@@ -26,7 +26,7 @@
 
 - [MySQL 速成](./database/mysql.md)（[结合示例代码](./database/chapter2.sql)）
 
-### Web 开发
+#### Web 开发
 
 - [Vue.js 速成](./web/vue.md)
 
