@@ -22,7 +22,7 @@
 
 
 
-<img src="C:\Users\kieru\Desktop\Note\position.png" alt="position" style="zoom:75%;" />
+<img src=".\position.png" alt="position" style="zoom:75%;" />
 
 z：前进方向。
 
@@ -102,7 +102,7 @@ y：竖直方向。
   //姑且认为是衡量大小的单位。
   ```
   
-  <img src="C:\Users\kieru\Desktop\Note\angular.png" alt="angular" style="zoom:60%;" title="rotation属性"/>
+  <img src=".\angular.png" alt="angular" style="zoom:60%;" title="rotation属性"/>
 
 ### CharacterController类
 
@@ -130,7 +130,7 @@ y：竖直方向。
 
 - 生命周期函数
 
-  <img src="C:\Users\kieru\AppData\Roaming\Typora\typora-user-images\image-20211207235958940.png" alt="image-20211207235958940" style="zoom:1000%;" />
+  <img src="./life.png" alt="生命周期" style="zoom:1000%;" />
 
 
 
