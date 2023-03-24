@@ -547,9 +547,31 @@ void dfs(int i)	// i 表示正在决定 nums[i] 的状态
 }
 ```
 
+## [2598. 执行操作后的最大 MEX](https://leetcode.cn/problems/smallest-missing-non-negative-integer-after-operations/description/)
 
+MEX表示自然数集（N\*）与数组的差集（N* - A）的最小值。
 
+要求 MEX 尽可能大，则只需要从 0 开始填坑即可，设需要填的数为a，则只要数组中存在一个数 x，使得 (x - a) % value == 0 即可以将 a 填上；若不能填，则 a 即为答案。
 
+### c++的模
 
+设 x > 0，则 (-x) % m == - (x % m) 。需要保证取模后的结果在 `[0, m)`，则可以写成 (x % m + m) % m，无论x正负都会在区间内。
 
+### 同余数
+
+设需要填的数为a，则只要数组中存在一个数 x，使得 (x - a) % value == 0 即可以将 a 填上；若不能填，则 a 即为答案。而 (x - a) % value = x % value - a % value，故只需要 x % value == a % value 即可。
+
+因此，对所有 x 取模并记录计数。
+
+```cpp
+for(auto i : nums) {
+    auto ng = (i % m + m) % m;
+    ++hash[ng];
+}
+int res = 0;
+while(hash[res % m]) {
+    --hash[res % m];
+    ++res;
+}
+```
 
