@@ -68,110 +68,6 @@ arr[0][1] == [[0, 1, 0], [0, 1, 0]]	# 发生联动改变
 [[0 for i in range(n)] for i in range(m)] # m 行 n 列
 ```
 
-
-
-# LeetCode
-
-## [2584. 分割数组使乘积互质](https://leetcode.cn/problems/split-the-array-to-make-coprime-products/)
-
-- 由互质想到质因子分解，相乘会使得质因子叠加
-
-  只要找到一个分割点使得两边没有相同的质因子即可。
-
-- 考虑一个数组分解后有两个相同质因子的情况
-
-  设两个质因子在数组的 l, r ，则分割点只有可能在 [0, l) U [r, sz)。
-
-- 答案不可能在 [l, r) ，题目要求找最小的分割点，可以考虑对所有的不可能区间按左端点排序，则答案只有可能在 0 处，或者右端点。
-
-### 质因数分解
-
-```cpp
-void devide(int num, vector<int> &s) 
-{
-    if(num < 2) {
-        return;
-    }
-    for(long long i = 2; i * i <= num; ++i) {
-        while(num % i == 0) {
-        	s.push_back(i);
-            num /= i;
-        }
-    }
-    if(num > 1)
-        s.push_back(num);
-}
-```
-
-- i * i <= num 是为了处理 4 的情况
-- 最后的特判是为了避免漏掉大质数因子的情况，同时排除 1 作为因子的情况。
-
-### 需要找到最左边和最右边的相同质因子
-
-找最大的区间。
-
-```cpp
-struct interval {
-    int a = -1;
-    int b = -1;
-};
-unordered_map<int, interval> hash;	// 相同质因子的最大区间
-for(int i = 0; i < nums.size(); ++i) {
-    auto num = nums[i];
-    if(num < 2) continue;
-    for(long long p = 2; p * p <= num; ++p) {
-        while(num % p == 0) {
-            auto &[l, r] = hash[p];
-            if(l == -1) {
-                l = i;	// 第一个 l 一定是最左边的
-            } else {
-                r = i;	// 最后一个 r 一定是最右边的
-            }
-            num /= p;
-        }
-    }
-    if(num > 1) {
-        auto &[l, r] = hash[num];
-        if(l == -1) {
-            l = i;	
-        } else {
-            r = i;	
-        }
-    }
-}
-```
-
-### 按左端点排序，遍历得到答案
-
-```cpp
-vector<interval> v(hash.size());
-for(auto &[_, val] : hash) {
-    v.push_back(val);
-}
-sort(v.begin(), v.end(), [](const auto &a, const auto &b){
-    return a.a < b.a;
-});
-int res = 0;
-for(auto [nl, nr] : v) {
-    if(nl > res) return res;
-    res = max(nr, res);
-}
-```
-
-### 注意合并区间的要点
-
-```cpp
-res = max(nr, res);
-```
-
-### 返回值需要注意的地方
-
-注意遍历到最大的右端点时没有下一个区间并且最大右端点 < nums.size() - 1 的情况。nums.size() - 1 按照题意不可能是答案之一。
-
-```cpp
-return res < nums.size() - 1 ? res : -1;
-```
-
 # 字节笔试
 
 ## [字母交换](https://www.nowcoder.com/questionTerminal/43488319efef4edabada3ca481068762)
@@ -488,3 +384,172 @@ Cache Misses = (Array Size / Cache Line Size) + (Array Size % Cache Line Size > 
 ### c++ 为什么要有头文件和源文件？
 
 使用头文件和源文件的主要原因是为了提高编译效率。头文件包含函数声明，变量声明和宏定义，而源文件则包含函数实现和变量定义。当编译器遇到一个函数被调用时，它会在头文件中查找函数声明，使得编译能够顺利进行。又因为每个源文件都会被独立编译，所以在修改某一函数定义之后，只需要重新编译该函数所在的源文件即可，而不需要重新编译所有源文件，提高编译效率。
+
+# LeetCode
+
+## [2584. 分割数组使乘积互质](https://leetcode.cn/problems/split-the-array-to-make-coprime-products/)
+
+- 由互质想到质因子分解，相乘会使得质因子叠加
+
+  只要找到一个分割点使得两边没有相同的质因子即可。
+
+- 考虑一个数组分解后有两个相同质因子的情况
+
+  设两个质因子在数组的 l, r ，则分割点只有可能在 [0, l) U [r, sz)。
+
+- 答案不可能在 [l, r) ，题目要求找最小的分割点，可以考虑对所有的不可能区间按左端点排序，则答案只有可能在 0 处，或者右端点。
+
+### 质因数分解
+
+```cpp
+void devide(int num, vector<int> &s) 
+{
+    if(num < 2) {
+        return;
+    }
+    for(long long i = 2; i * i <= num; ++i) {
+        while(num % i == 0) {
+        	s.push_back(i);
+            num /= i;
+        }
+    }
+    if(num > 1)
+        s.push_back(num);
+}
+```
+
+- i * i <= num 是为了处理 4 的情况
+- 最后的特判是为了避免漏掉大质数因子的情况，同时排除 1 作为因子的情况。
+
+### 需要找到最左边和最右边的相同质因子
+
+找最大的区间。
+
+```cpp
+struct interval {
+    int a = -1;
+    int b = -1;
+};
+unordered_map<int, interval> hash;	// 相同质因子的最大区间
+for(int i = 0; i < nums.size(); ++i) {
+    auto num = nums[i];
+    if(num < 2) continue;
+    for(long long p = 2; p * p <= num; ++p) {
+        while(num % p == 0) {
+            auto &[l, r] = hash[p];
+            if(l == -1) {
+                l = i;	// 第一个 l 一定是最左边的
+            } else {
+                r = i;	// 最后一个 r 一定是最右边的
+            }
+            num /= p;
+        }
+    }
+    if(num > 1) {
+        auto &[l, r] = hash[num];
+        if(l == -1) {
+            l = i;	
+        } else {
+            r = i;	
+        }
+    }
+}
+```
+
+### 按左端点排序，遍历得到答案
+
+```cpp
+vector<interval> v(hash.size());
+for(auto &[_, val] : hash) {
+    v.push_back(val);
+}
+sort(v.begin(), v.end(), [](const auto &a, const auto &b){
+    return a.a < b.a;
+});
+int res = 0;
+for(auto [nl, nr] : v) {
+    if(nl > res) return res;
+    res = max(nr, res);
+}
+```
+
+### 注意合并区间的要点
+
+```cpp
+res = max(nr, res);
+```
+
+### 返回值需要注意的地方
+
+注意遍历到最大的右端点时没有下一个区间并且最大右端点 < nums.size() - 1 的情况。nums.size() - 1 按照题意不可能是答案之一。
+
+```cpp
+return res < nums.size() - 1 ? res : -1;
+```
+
+## [2597. 美丽子集的数目](https://leetcode.cn/problems/the-number-of-beautiful-subsets/description/)
+
+找到所有满足条件的子集。
+
+### 找子集
+
+dfs 的使用条件应该是固定的 n 叉树，考虑子集的数目如何计算，每个数只有选和不选两种状态，所以 dfs 一颗二叉树。
+
+```cpp
+void dfs(int i)	// i 表示正在决定 nums[i] 的状态
+{
+    if(i == n) {
+        res.push_back(ans);
+        return;
+    }
+    ans.push_back(nums[i]);
+    dfs(i + 1);				// 走存在nums[i]的分支
+    ans.pop_back();
+    dfs(i + 1);				// 走不存在nums[i]的分支
+}
+```
+
+另一个可行的版本
+
+```cpp
+{	
+    dfs(i + 1);				// 走存在nums[i]的分支
+    ans.push_back(nums[i]);
+    dfs(i + 1);				// 走不存在nums[i]的分支
+    ans.pop_back();
+}
+```
+
+### 找符合条件的子集
+
+不要考虑如何判断一个子集是否符合条件，应该用动态规划的思想，只考虑如何构造一个合法的子集，假如每次加入的数字都是合法的，则构造出来的子集一定也是合法的。
+
+判断 nums[i\] 是否能够放到符合条件的子集中，只需要知道 nums[i] - k 或 nums[i] + k 是否在子集当中，考虑使用哈希表。
+
+### 哈希表需要注意的点
+
+不可以使用 bool 表示 nums[i] +- k 是否在子集中，因为 nums[i] 可能会重复，只有当所有相同的 nums[i\] 消除完毕，才能从存在状态变成不存在的状态。
+
+```cpp
+void dfs(int i)	// i 表示正在决定 nums[i] 的状态
+{
+    if(i == n) {
+        res.push_back(ans);
+        return;
+    }
+    ++exist[nums[i]];
+    // 满足该条件才能继续决定nums[i + 1]的状态
+    if(!exist[nums[i] + k] && !exist[nums[i] - k])
+        dfs(i + 1);			// 走存在nums[i]的分支
+    --exist[nums[i]];
+    // 没有选择nums[i]，不影响
+    dfs(i + 1);				// 走不存在nums[i]的分支
+}
+```
+
+
+
+
+
+
+
