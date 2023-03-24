@@ -76,3 +76,11 @@ linux运行sh就可以了。
 ```
 
 您必须手动将此选项加入每个项目配置文件中。
+
+## 导包
+
+```cpp
+find_package(cpr CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr)
+```
+
