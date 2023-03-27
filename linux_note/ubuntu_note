@@ -62,4 +62,9 @@
     kde input_device->keyboard->hardwaretab
 
 ## proxychains4
-/etc/proxychains.conf
+    /etc/proxychains.conf
+
+## checkinstall
+    make install > install_info
+    checkinstall < install_info
+
