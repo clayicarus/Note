@@ -61,3 +61,27 @@ Foo *p = new Foo();
 delete p;
 ```
 
+### 以对象为返回值的函数在返回时不会释放该对象
+
+```cpp
+Widget func() 
+{
+    Widget res;
+    LOG_INFO("");
+    return res;
+}
+
+int main() 
+{
+    Widget w = func();
+    LOG_INFO("");
+    
+    return 0;
+}
+```
+
+- func内初始化res时执行了一次构造函数
+- main返回后执行了一次析构函数
+- 共执行一次构造一次析构
+
+- res的生命期延长到了main返回
