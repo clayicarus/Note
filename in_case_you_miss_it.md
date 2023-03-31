@@ -80,9 +80,6 @@ sth b={
 ```
 	HKEY_CLASSES_ROOT\Directory\Background\shell
 ```
-<img src="C:\Users\kieru\AppData\Roaming\Typora\typora-user-images\image-20211105221454025.png" alt="image-20211105221454025" style="zoom: 67%;" />
-
-<img src="C:\Users\kieru\AppData\Roaming\Typora\typora-user-images\image-20211105221517777.png" alt="image-20211105221517777" style="zoom: 67%;" />
 
 - command
 
