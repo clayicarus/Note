@@ -48,6 +48,9 @@
 - [2023/3 刷题记录](./interview_and_record/mar.md)
 - [过往刷题记录](./interview_and_record/record.md)
 - [字节跳动 24 暑期实习 3 月笔试](./interview_and_record/24字节暑期实习3月笔试.md)
+- [百度 24 暑期实习笔试 3 月笔试](./interview_and_record/baidu_24summer.md)
+
+
 
 
 
