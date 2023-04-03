@@ -50,4 +50,5 @@
 - [字节跳动 24 暑期实习 3 月笔试](./interview_and_record/24字节暑期实习3月笔试.md)
 - [百度 24 暑期实习 3 月笔试](./interview_and_record/baidu_24summer.md)
 - [美团 24 暑期实习 4 月笔试](./interview_and_record/meituan_24summer.md)
+- [吉比特 24 暑期实习 4 月笔试](./interview_and_record/gbit_24summer.md)
 
