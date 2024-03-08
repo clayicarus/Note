@@ -53,4 +53,5 @@
 - [吉比特 24 暑期实习 4 月笔试](./interview_and_record/gbit_24summer.md)
 - [2023 年 9 月腾讯 KPI 面](./interview_and_record/20230916.md)
 - [2024 年 1 月拓元智慧初面](./interview_and_record/20240105.md)
+- [2024 年 3 月多益网络初面](./interview_and_record/20240301.md)
 
